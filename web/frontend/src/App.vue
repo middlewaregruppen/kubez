@@ -2,48 +2,41 @@
   <v-app id="inspire">
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
-       
-          <v-list-item link @click="$router.push('/')">
-            <v-list-item-action>
-              <v-icon>mdi-view-dashboard</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Pod info</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+        <v-list-item link @click="$router.push('/')">
+          <v-list-item-action>
+            <v-icon>mdi-view-dashboard</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Pod info</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
+        <v-list-item link @click="$router.push('api')">
+          <v-list-item-action>
+            <v-icon>mdi-drone</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>API Control Center</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
-                  <v-list-item link @click="$router.push('api')">
-            <v-list-item-action>
-              <v-icon>mdi-drone</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>API Control Center </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+        <v-list-item link @click="$router.push('compute-stats')">
+          <v-list-item-action>
+            <v-icon>mdi-chart-line</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Stats &amp; Load Tools</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
-          <v-list-item link @click="$router.push('compute-stats')">
-            <v-list-item-action>
-              <v-icon>mdi-chart-line</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Stats &amp; Load Tools</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-
-          <v-list-item link @click="$router.push('observability')">
-            <v-list-item-action>
-              <v-icon>mdi-popcorn</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Observability</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-
-
-        
-
-   
+        <v-list-item link @click="$router.push('observability')">
+          <v-list-item-action>
+            <v-icon>mdi-popcorn</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Observability</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
         <v-list-item link @click="$router.push('network')">
           <v-list-item-action>

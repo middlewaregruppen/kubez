@@ -6,87 +6,143 @@
         <v-list-item-title class="headline mb-1">Control Group</v-list-item-title>
         <v-list-item-subtitle>Control groups are used to assign quotas to the containers when they are scheduled on the compute node. This information is collected from /sys/fs/cgroup inside the container.</v-list-item-subtitle>
         <div class="body-2 pl-3">
-          <div class="mt-2">CPU</div>
-          <v-row no-gutters>
-            <v-col>cfs quota</v-col>
-            <v-col>{{cgroup.cpuCfs_quota_us}} µs</v-col>
-            <v-col
-              cols="9"
-            >Maximum time in microseconds during each cpu cfs period in which the current group will be allowed to run.</v-col>
-          </v-row>
-          <v-row no-gutters>
-            <v-col>cfs period</v-col>
-            <v-col>{{cgroup.cpuCfs_period_us}} µs</v-col>
-            <v-col
-              cols="9"
-            >Duration in microseconds of each scheduler period, for bandwidth decisions.</v-col>
-          </v-row>
-          <v-row no-gutters>
-            <v-col>nr_throttled</v-col>
-            <v-col>{{cgroup.cpuStatNr_throttled}}</v-col>
-            <v-col
-              cols="9"
-            >Bandwidth statistics: Number of times we exausted the full allowed bandwidth</v-col>
-          </v-row>
+          <v-row>
+            <v-col>
+              <v-row>
+                <v-col>CPU</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">cfs quota</span>
+                    </template>
+                    <span>
+                      cfs quota: Maximum time in microseconds during each cpu cfs period in which
+                      the current group will be allowed to run.
+                    </span>
+                  </v-tooltip>
+                </v-col>
+                <v-col>{{cg.cpuQuota | us2ns | prettyTime}} </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">cfs period</span>
+                    </template>
+                    <span>cfs period: Duration in microseconds of each scheduler period, for bandwidth decisions.</span>
+                  </v-tooltip>
+                </v-col>
+                <v-col>{{cg.cpuPeriod | us2ns | prettyTime}}</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">nr_throttled</span>
+                    </template>
+                    <span>nr_throttled: Bandwidth statistics: Number of times we exausted the full allowed bandwidth.</span>
+                  </v-tooltip>
+                </v-col>
+                <v-col>{{cg.cpuNumberThrottled}}</v-col>
+              </v-row>
 
-          <v-row no-gutters>
-            <v-col>throttled_time</v-col>
-            <v-col>{{cgroup.cpuStatThrottled_time}}</v-col>
-            <v-col
-              cols="9"
-            >Bandwidth statistics: Total time the tasks were not run due to being overquota</v-col>
-          </v-row>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">throttled_time</span>
+                    </template>
+                    <span>throttled_time: Bandwidth statistics: Total time the tasks were not run due to being over quota.</span>
+                  </v-tooltip>
+                </v-col>
+                <v-col>{{cg.cpuTimeThrottled | prettyTime}}</v-col>
+              </v-row>
 
-          <v-row no-gutters>
-            <v-col>nr_periods</v-col>
-            <v-col>{{cgroup.cpuStatNr_periods}}</v-col>
-            <v-col cols="9">Bandwidth statistics: How many full periods have been elapsed</v-col>
-          </v-row>
-          <div class="mt-2">Memory</div>
-          <v-row no-gutters>
-            <v-col>limit</v-col>
-            <v-col>{{ cgroup.memoryLimit_in_bytes | prettyBytes}}</v-col>
-            <v-col cols="9">Maximum memory that the group is allowed to use</v-col>
-          </v-row>
-          <v-row no-gutters>
-            <v-col>usage</v-col>
-            <v-col>{{ cgroup.memoryUsage_in_bytes | prettyBytes}}</v-col>
-            <v-col cols="9">Current memory usage</v-col>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">nr_periods</span>
+                    </template>
+                    <span>nr_periods: Bandwidth statistics: How many full periods have been elapsed</span>
+                  </v-tooltip>
+                </v-col>
+                <v-col>{{cg.cpuNumberPeriods}}</v-col>
+              </v-row>
+            </v-col>
+            <v-col>
+              <v-row>
+                <v-col>Memory</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">limit</span>
+                    </template>
+                    <span>limit: Maximum memory that the group is allowed to use</span>
+                  </v-tooltip>
+                </v-col>
+
+                <v-col>{{ cg.memoryLimit | prettyBytes}}</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">usage</span>
+                    </template>
+                    <span>usage: Current memory usage</span>
+                  </v-tooltip>
+                </v-col>
+                <v-col>{{ cg.memoryUsage | prettyBytes}}</v-col>
+              </v-row>
+            </v-col>
           </v-row>
         </div>
       </v-list-item-content>
 
-      <v-list-item-avatar tile size="80" color="grey">
-        <v-icon></v-icon>
-      </v-list-item-avatar>
+     
     </v-list-item>
 
-    <v-card-actions>
-      <!--v-btn text>Refresh</v-btn>
-      <v-btn text>Show all</v-btn-->
-    </v-card-actions>
   </v-container>
 </template>
 <script>
+import { mapState } from 'vuex'
+  
 export default {
   name: "CGroup",
 
-  data: () => ({ cgroup: {} }),
-
-  mounted: function() {
-    this.fetchData();
-          setInterval(
-        function() {
-          this.fetchData();
-        }.bind(this),
-        1000
-      );
-  },
-
+  computed: mapState({
+    cg: state => state.info.cGroup,
+  }),
+  
   filters: {
+    prettyTime: function(num) {
+      if (typeof num !== "number" || isNaN(num)) {
+        return num
+      }
+      if (num > Math.pow(10, 9) * 3 ) {
+        return (num / Math.pow(10, 9)).toFixed(1)+" s"
+      }
+      if (num > Math.pow(10, 6)) {
+        return (num / Math.pow(10, 6)).toFixed(0)+ " ms"
+      }
+      if (num > Math.pow(10, 3)) {
+        return (num / Math.pow(10, 3)).toFixed(0) + " µs"
+      }
+      return num + " ns"
+    },
+    us2ns:function(num) {
+      // microseconds to nano seconds
+      return num*1000
+
+    },
     prettyBytes: function(num) {
       if (typeof num !== "number" || isNaN(num)) {
-        throw new TypeError("Expected a number");
+        return num
       }
 
       var exponent;
@@ -110,18 +166,6 @@ export default {
       unit = units[exponent];
 
       return (neg ? "-" : "") + num + " " + unit;
-    }
-  },
-
-  methods: {
-    fetchData: function() {
-      var xhr = new XMLHttpRequest();
-      var self = this;
-      xhr.open("GET", "/api/cgroup");
-      xhr.onload = function() {
-        self.cgroup = JSON.parse(xhr.responseText);
-      };
-      xhr.send();
     }
   }
 };

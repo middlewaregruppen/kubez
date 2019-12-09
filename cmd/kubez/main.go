@@ -1,24 +1,25 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/gobuffalo/packr"
-	"github.com/gorilla/mux"
-	"github.com/middlewaregruppen/kubez/pkg/info"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/middlewaregruppen/kubez/pkg/actions"
+	"github.com/middlewaregruppen/kubez/pkg/info"
 )
 
 func main() {
 
-	r := mux.NewRouter()
-	r.HandleFunc("/api/cgroup", func(w http.ResponseWriter, r *http.Request) {
-		rt := info.GetCgroup()
-		b, _ := json.Marshal(rt)
-		w.Write(b)
-	})
+	log.Printf("Starting kubez")
+	//pkger.Include("/web/frontend/dist")
 
-	box := packr.NewBox("../../web/frontend/dist")
-	r.Handle("/", http.FileServer(box))
+	r := mux.NewRouter()
+	r.HandleFunc("/kubez/info", info.HandleGetInfo).Methods("GET")
+	r.HandleFunc("/kubez/action/{action}", actions.ActionHandler).Methods("POST")
+
+	dir := http.FileServer(http.Dir("web/frontend/dist"))
+	r.PathPrefix("/").Handler(dir)
 
 	http.ListenAndServe(":3000", r)
 }
