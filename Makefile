@@ -27,6 +27,7 @@ dep:
 	go get -v -d ./... ;
 
 frontend:
+	npm install --prefix web/frontend
 	NODE_ENV=production npm run build --prefix web/frontend
 	
 
