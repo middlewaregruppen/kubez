@@ -62,12 +62,6 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Dr. Kubez</v-toolbar-title>
       <v-spacer></v-spacer>
-      <span mx-3>
-        <v-btn color="secondary" small dark>Kill</v-btn>
-        <v-btn color="secondary" small dark>Allocate Ram</v-btn>
-        <v-btn color="secondary" small dark>Load CPU</v-btn>
-        <v-btn color="secondary" small dark>Fail Healthcheck</v-btn>
-      </span>
     </v-app-bar>
 
     <v-content>
@@ -75,16 +69,27 @@
     </v-content>
 
     <v-footer app pl-3>
-      <span>Svenska Middlewaregruppen AB</span>
+      <span>Svenska Middlewaregruppen AB </span> <v-spacer></v-spacer> <span><a href ="https://middleware.se"> middleware.se </a></span> <v-spacer></v-spacer> <span><v-icon>mdi-github-circle</v-icon><a href ="https://github.com/middlewaregruppen/kubez">kubez </a> </span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
+//import { mapState } from 'vuex'
+
 export default {
   props: {
     source: String
   },
+/*
+  computed: {
+    updated: function () {
+      if  (Date.now() < (state.info.cGroup +2 ))  {
+        return false
+      }
+      return true
+    }
+  },*/
 
   data: () => ({
     drawer: null

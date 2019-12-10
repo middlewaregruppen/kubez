@@ -13,11 +13,7 @@
           <CGroup />
         </v-card>
       </v-col>
-      <v-col>
-        <v-card>
-          <LoadTools />
-        </v-card>
-      </v-col>
+      
     </v-row>
   </div>
 </template>

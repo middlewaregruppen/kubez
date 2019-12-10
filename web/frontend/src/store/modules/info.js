@@ -2,6 +2,7 @@
 const state = {
     info: {},
     cGroup: {},
+    updated: null,
   }
  
 
@@ -10,9 +11,12 @@ const state = {
 // getters
 const getters = {
 
-  cgrssoup: (state) => {
+  cgroup: (state) => {
     
     return state.info.cGroup 
+  },
+  updated: (state) => {
+    return state.updated
   }
 
   }
@@ -27,6 +31,7 @@ const actions = {
 const mutations = {
  
   'SET_INFO' (state, info) {
+    state.updated = Date.now()
 
       state.cGroup = info.cGroup
   }
