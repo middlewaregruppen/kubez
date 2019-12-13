@@ -3,7 +3,7 @@
     <v-list-item three-line>
       <v-list-item-content>
         <v-list-item-title class="subtitle mb-1">{{name}}</v-list-item-title>
-        <v-list-item-subtitle v-if="collapsed" >{{ep.path}}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="collapsed">{{ep.path}}</v-list-item-subtitle>
 
         <div class="body-2" v-if="!collapsed">
           <v-form class="mt-4" ref="form">
@@ -58,6 +58,12 @@
               v-model="ep.response.static"
               hint="The payload that should be sent to the client"
             ></v-textarea>
+            <v-textarea
+              name="replyHeaders"
+              label="Reply Headers"
+              v-model="replyHeaders"
+              hint="Headers to add to the response. One on each line. eg. Content-Type: application/json "
+            ></v-textarea>
             <!--v-select v-model="ep.methods" :items="methods" label="Accepted Methods" multiple></v-select-->
           </v-form>
         </div>
@@ -72,7 +78,12 @@
         </v-btn>
       </v-list-item-icon>
     </v-list-item>
-    <v-btn small class="ml-4" v-if="!collapsed && !expanded " @click="saveAndCollapse()">Save and Close</v-btn>
+    <v-btn
+      small
+      class="ml-4"
+      v-if="!collapsed && !expanded "
+      @click="saveAndCollapse()"
+    >Save and Close</v-btn>
     <v-btn small class="ml-4" v-if="expanded" @click="update()">Save</v-btn>
   </v-container>
 </template>
@@ -97,24 +108,48 @@ export default {
   methods: {
     fetch: function() {
       axios.get(this.href).then(res => (this.ep = res.data));
+     
     },
     update: function() {
       this.ep.delay.minTime = parseInt(this.ep.delay.minTime);
       this.ep.delay.maxTime = parseInt(this.ep.delay.maxTime);
       this.ep.failureRate.rate = parseInt(this.ep.failureRate.rate);
-
+      this.ep.response.headers = this.httpHeadersToMap(this.replyHeaders);
       axios.put(this.href, this.ep).then(res => (this.ep = res.data));
     },
     saveAndCollapse: function() {
       this.update();
       this.collapsed = true;
+    },
+    httpHeadersToMap(text) {
+      var res = {};
+      var lines = text.split("\n");
+      lines.forEach(element => {
+        var kv = element.split(":");
+        if (kv[1]!=undefined) {
+           res[kv[0]] = kv[1].trim();
+        }
+       
+      });
+      return res;
+    },
+    httpHeadersToText(map){
+      var res = ""
+      for (const [key, value] of Object.entries(map)) {
+        res = res + key +": "+value+"\n"
+      }
+      return res
     }
   },
 
   computed: {
     delayRange() {
-      if (this.ep.delay.maxTime == 0) {
+      if (this.ep.delay.minTime == 0) {
         return "No";
+      }
+
+      if (this.ep.delay.minTime > this.ep.delay.maxTime) {
+        return this.ep.delay.minTime + " ms";
       }
 
       if (this.ep.delay.minTime == this.ep.delay.maxTime) {
@@ -131,6 +166,7 @@ export default {
         delay: {},
         failureRate: {}
       },
+      replyHeaders: "",
       collapsed: true,
       methods: [
         "get",
@@ -177,9 +213,9 @@ export default {
       ],
       responseTypes: [
         { type: "static", text: "Static Response" },
-        { type: "proxy", text: "Proxy requests to a server" },
-        { type: "cruddb", text: "Database with CRUD operations" },
-        { type: "random", text: "Random generated data" }
+      //  { type: "proxy", text: "Proxy requests to a server" },
+      //  { type: "cruddb", text: "Database with CRUD operations" },
+     //   { type: "random", text: "Random generated data" }
       ]
     };
   }

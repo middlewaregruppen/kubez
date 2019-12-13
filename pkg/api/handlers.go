@@ -85,10 +85,6 @@ func (ac *APIController) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Req
 	ac.HandleGetEndpoint(w, r)
 }
 
-func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(a.Response.Static))
-}
-
 func (ac *APIController) apisServing(path string) []*API {
 
 	var res []*API
