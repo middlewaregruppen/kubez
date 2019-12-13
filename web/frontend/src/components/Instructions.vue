@@ -1,9 +1,9 @@
 <template>
   <v-dialog v-model="dialog" scrollable max-width="800px">
     <template v-slot:activator="{ on }">
-      <v-btn fab small  color="primary" dark v-on="on">
-       <v-icon>mdi-help-box</v-icon>
-      </v-btn>
+      <v-btn  small icon dark v-on="on">
+       <v-icon >mdi-help-box</v-icon>
+      </v-btn >
     </template>
     <v-card>
       <v-card-text  style="height: 300px;">
