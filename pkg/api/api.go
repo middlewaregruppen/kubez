@@ -8,7 +8,7 @@ type API struct {
 
 	Delay       Delay       `json:"delay"`
 	FailureRate FailureRate `json:"failureRate"`
-	Response    *Response   `json:"response"`
+	Response    Response    `json:"response"`
 	Self        string      `json:"self"`
 }
 

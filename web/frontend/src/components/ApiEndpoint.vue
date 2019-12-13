@@ -3,7 +3,7 @@
     <v-list-item three-line>
       <v-list-item-content>
         <v-list-item-title class="subtitle mb-1">{{name}}</v-list-item-title>
-        <v-list-item-subtitle>{{ep.path}}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="collapsed" >{{ep.path}}</v-list-item-subtitle>
 
         <div class="body-2" v-if="!collapsed">
           <v-form class="mt-4" ref="form">
@@ -57,52 +57,59 @@
               label="Static Reply Content"
               v-model="ep.response.static"
               hint="The payload that should be sent to the client"
-            ></v-textarea> 
+            ></v-textarea>
             <!--v-select v-model="ep.methods" :items="methods" label="Accepted Methods" multiple></v-select-->
           </v-form>
         </div>
       </v-list-item-content>
 
-      <v-list-item-icon  v-if="collapsed">
+      <v-list-item-icon v-if="collapsed">
         <v-chip small outlined>{{delayRange}} delay</v-chip>
         <v-chip small outlined>{{ep.failureRate.rate}}% failure rate</v-chip>
         <v-chip small outlined>Static Relpy</v-chip>
-            <v-btn icon class="ml-4" @click="collapsed = false">
-      <v-icon  color="grey lighten-1">mdi-settings</v-icon>
-    </v-btn>
+        <v-btn icon class="ml-4" @click="collapsed = false">
+          <v-icon color="grey lighten-1">mdi-settings</v-icon>
+        </v-btn>
       </v-list-item-icon>
     </v-list-item>
-    <v-btn small class="ml-4 " v-if="!collapsed" @click="saveAndClose()">Save and Close</v-btn>
+    <v-btn small class="ml-4" v-if="!collapsed && !expanded " @click="saveAndCollapse()">Save and Close</v-btn>
+    <v-btn small class="ml-4" v-if="expanded" @click="update()">Save</v-btn>
   </v-container>
 </template>
 <script>
 import axios from "axios";
 export default {
   name: "ApiEndpoint",
-  props: ["name", "href"],
+
+  props: {
+    name: String,
+    href: String,
+    expanded: Boolean
+  },
+
   mounted: function() {
-   this.fetch()
+    this.fetch();
+    if (this.expanded) {
+      this.collapsed = false;
+    }
   },
 
   methods: {
-    fetch: function () {
+    fetch: function() {
       axios.get(this.href).then(res => (this.ep = res.data));
-    },  
-    update: function () {
-      this.ep.delay.minTime = parseInt(this.ep.delay.minTime)
-      this.ep.delay.maxTime = parseInt(this.ep.delay.maxTime)
-      this.ep.failureRate.rate = parseInt(this.ep.failureRate.rate)
+    },
+    update: function() {
+      this.ep.delay.minTime = parseInt(this.ep.delay.minTime);
+      this.ep.delay.maxTime = parseInt(this.ep.delay.maxTime);
+      this.ep.failureRate.rate = parseInt(this.ep.failureRate.rate);
 
       axios.put(this.href, this.ep).then(res => (this.ep = res.data));
     },
-    saveAndClose: function () {
+    saveAndCollapse: function() {
       this.update();
       this.collapsed = true;
-    },
-    
-
+    }
   },
-  
 
   computed: {
     delayRange() {
@@ -117,7 +124,6 @@ export default {
       return this.ep.delay.minTime + "-" + this.ep.delay.maxTime + " ms";
     }
   },
-
 
   data: function() {
     return {

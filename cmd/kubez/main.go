@@ -20,9 +20,17 @@ func main() {
 	ac.RegisterAPI(&api.API{
 		Name: "testa",
 		Path: "/api/hello",
-		Response: &api.Response{
+		Response: api.Response{
 			Type:   "static",
 			Static: "world",
+		},
+	})
+	ac.RegisterAPI(&api.API{
+		Name: "Test B",
+		Path: "/api/hello2",
+		Response: api.Response{
+			Type:   "static",
+			Static: "worldss",
 		},
 	})
 
