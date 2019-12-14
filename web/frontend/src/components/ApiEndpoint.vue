@@ -78,7 +78,7 @@
       <v-list-item-icon v-if="collapsed">
         <v-chip small outlined>{{delayRange}} delay</v-chip>
         <v-chip small outlined>{{ep.failureRate.rate}}% failure rate</v-chip>
-        <v-chip small outlined>Static Relpy</v-chip>
+        <v-chip small outlined>{{handlerType}}</v-chip>
         <v-btn icon class="ml-4" @click="collapsed = false">
           <v-icon color="grey lighten-1">mdi-settings</v-icon>
         </v-btn>
@@ -168,7 +168,17 @@ export default {
       }
 
       return this.ep.delay.minTime + "-" + this.ep.delay.maxTime + " ms";
+    },
+    handlerType() {
+      switch (this.ep.response.type){
+        case "static":
+          return "Static Reply"
+        case "random":
+          return "Random Data"
+      }
+    return this.ep.response.type
     }
+
   },
 
   data: function() {
@@ -224,8 +234,8 @@ export default {
       ],
       responseTypes: [
         { type: "static", text: "Static Response" }
-        //  { type: "proxy", text: "Proxy requests to a server" },
-        //  { type: "cruddb", text: "Database with CRUD operations" },
+        //  { type: "proxy", text: "Proxy requests" },
+        //  { type: "cruddb", text: "CRUD database" },
         //   { type: "random", text: "Random generated data" }
       ]
     };
