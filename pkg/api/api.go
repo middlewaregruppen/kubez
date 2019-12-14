@@ -12,8 +12,8 @@ type API struct {
 	// Name of the API
 	Name string `json:"name"`
 	// Path
-	Path string `json:"path"`
-
+	Path        string      `json:"path"`
+	CORS        bool        `json:"cors"`
 	Delay       Delay       `json:"delay"`
 	FailureRate FailureRate `json:"failureRate"`
 	Response    Response    `json:"response"`
@@ -61,6 +61,20 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(a.FailureRate.ResponseCodes)
 			return
 		}
+	}
+
+	// Is it a request to get CORS?
+	if r.Method == http.MethodOptions && a.CORS {
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Methods", "PATCH, PUT, POST, GET, OPTIONS, DELETE, HEAD, TRACE")
+		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Write headers
+	for h, v := range a.Response.Headers {
+		w.Header().Add(h, v)
 	}
 
 	w.Write([]byte(a.Response.Static))

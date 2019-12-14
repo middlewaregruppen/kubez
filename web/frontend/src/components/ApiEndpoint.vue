@@ -14,7 +14,6 @@
                   v-model="ep.delay.minTime"
                   label="Minimum delay in milliseconds"
                   placeholder="0"
-                  :rules="delayMinRules"
                 ></v-text-field>
               </v-col>
               <v-col>
@@ -22,7 +21,6 @@
                   v-model="ep.delay.maxTime"
                   label="Maximum delay in milliseconds"
                   placeholder="0"
-                  :rules="delayRules"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -58,12 +56,20 @@
               v-model="ep.response.static"
               hint="The payload that should be sent to the client"
             ></v-textarea>
-            <v-textarea
-              name="replyHeaders"
-              label="Reply Headers"
-              v-model="replyHeaders"
-              hint="Headers to add to the response. One on each line. eg. Content-Type: application/json "
-            ></v-textarea>
+
+            <v-row no-gutters>
+              <v-col>
+                <v-switch v-model="ep.cors" class="ml-2" label="Promiscuous Cross-Origin Resource Sharing (CORS)"></v-switch>
+              </v-col>
+              <v-col>
+                <v-textarea
+                  name="replyHeaders"
+                  label="Reply Headers"
+                  v-model="replyHeaders"
+                  hint="Headers to add to the response. One on each line. eg. Content-Type: application/json "
+                ></v-textarea>
+              </v-col>
+            </v-row>
             <!--v-select v-model="ep.methods" :items="methods" label="Accepted Methods" multiple></v-select-->
           </v-form>
         </div>
@@ -107,14 +113,17 @@ export default {
 
   methods: {
     fetch: function() {
-      axios.get(this.href).then(res => (this.ep = res.data));
-     
+      axios.get(this.href).then(res => {
+        this.ep = res.data;
+        this.replyHeaders = this.httpHeadersToText();
+      });
     },
     update: function() {
       this.ep.delay.minTime = parseInt(this.ep.delay.minTime);
       this.ep.delay.maxTime = parseInt(this.ep.delay.maxTime);
       this.ep.failureRate.rate = parseInt(this.ep.failureRate.rate);
       this.ep.response.headers = this.httpHeadersToMap(this.replyHeaders);
+      window.console.log(this.replyHeaders);
       axios.put(this.href, this.ep).then(res => (this.ep = res.data));
     },
     saveAndCollapse: function() {
@@ -126,19 +135,21 @@ export default {
       var lines = text.split("\n");
       lines.forEach(element => {
         var kv = element.split(":");
-        if (kv[1]!=undefined) {
-           res[kv[0]] = kv[1].trim();
+        if (kv[1] != undefined) {
+          res[kv[0]] = kv[1].trim();
         }
-       
       });
       return res;
     },
-    httpHeadersToText(map){
-      var res = ""
-      for (const [key, value] of Object.entries(map)) {
-        res = res + key +": "+value+"\n"
+    httpHeadersToText() {
+      this.ep.response;
+      if (this.ep.response.headers == undefined) return "";
+
+      var res = "";
+      for (const [key, value] of Object.entries(this.ep.response.headers)) {
+        res = res + key + ": " + value + "\n";
       }
-      return res
+      return res;
     }
   },
 
@@ -212,10 +223,10 @@ export default {
         { code: 511, text: "511 - Network authenetication required" }
       ],
       responseTypes: [
-        { type: "static", text: "Static Response" },
-      //  { type: "proxy", text: "Proxy requests to a server" },
-      //  { type: "cruddb", text: "Database with CRUD operations" },
-     //   { type: "random", text: "Random generated data" }
+        { type: "static", text: "Static Response" }
+        //  { type: "proxy", text: "Proxy requests to a server" },
+        //  { type: "cruddb", text: "Database with CRUD operations" },
+        //   { type: "random", text: "Random generated data" }
       ]
     };
   }
