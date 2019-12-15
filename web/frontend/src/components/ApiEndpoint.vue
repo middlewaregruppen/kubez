@@ -7,7 +7,14 @@
 
         <div class="body-2" v-if="!collapsed">
           <v-form class="mt-4" ref="form">
-            <v-text-field v-model="ep.path" label="Path" required></v-text-field>
+            <v-row no-gutters> 
+            <v-col >
+            <v-text-field v-model="ep.port" label="Port" hint= "Port to listen to" placeholder="6080" required></v-text-field>
+            </v-col>
+            <v-col  cols = "10">
+              <v-text-field v-model="ep.path" label="Path" required></v-text-field>
+            </v-col>
+            </v-row>
             <v-row no-gutters>
               <v-col>
                 <v-text-field
@@ -42,6 +49,24 @@
                 ></v-select>
               </v-col>
             </v-row>
+            <v-row no-gutters>
+              <v-col>
+                <v-text-field
+                  v-model="ep.transmissionRate.rx"
+                  label="Request data transmission rate in bytes per seconds"
+                  hint="0 means no limitation"
+                  placeholder="0"
+                ></v-text-field>
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-model="ep.transmissionRate.tx"
+                  label="Reply data transmission rate in bytes per seconds"
+                  hint="0 means no limitation"
+                  placeholder="0"
+                ></v-text-field>
+              </v-col>
+            </v-row>
             <v-select
               v-model="ep.response.type"
               :items="responseTypes"
@@ -59,7 +84,26 @@
 
             <v-row no-gutters>
               <v-col>
-                <v-switch v-model="ep.cors" class="ml-2" label="Promiscuous Cross-Origin Resource Sharing (CORS)"></v-switch>
+                <v-row no-gutters>
+                  <v-col>
+                <v-checkbox
+                  v-model="ep.cors"
+                 
+                  label="CORS from all domains"
+                ></v-checkbox>
+              </v-col>
+                <v-col >
+                <v-checkbox
+                  
+                  v-model="ep.logToConsole"
+                  label="Log requests to console"
+                ></v-checkbox>
+                </v-col>
+               
+                </v-row>
+                <v-row no-gutters>
+         
+              </v-row>
               </v-col>
               <v-col>
                 <v-textarea
@@ -76,9 +120,11 @@
       </v-list-item-content>
 
       <v-list-item-icon v-if="collapsed">
-        <v-chip small outlined>{{delayRange}} delay</v-chip>
-        <v-chip small outlined>{{ep.failureRate.rate}}% failure rate</v-chip>
+        <v-chip small v-if="ep.transmissionRate.rx > 0" outlined>{{ep.transmissionRate.rx | prettyBytes}} rx limit</v-chip>
+        <v-chip small v-if="delayRange != 'no'" outlined>{{delayRange}} delay</v-chip>
+        <v-chip small v-if="ep.failureRate.rate > 0" outlined>{{ep.failureRate.rate}}% failure rate</v-chip>
         <v-chip small outlined>{{handlerType}}</v-chip>
+        <v-chip small  v-if="ep.transmissionRate.tx > 0"  outlined>{{ep.transmissionRate.tx | prettyBytes}} tx reply</v-chip>
         <v-btn icon class="ml-4" @click="collapsed = false">
           <v-icon color="grey lighten-1">mdi-settings</v-icon>
         </v-btn>
@@ -111,6 +157,40 @@ export default {
     }
   },
 
+  filters: {
+    prettyBytes: function(num) {
+      if (typeof num !== "number" || isNaN(num)) {
+        return num;
+      }
+
+      if (num == 0) {
+        return "no";
+      }
+
+      var exponent;
+      var unit;
+      var neg = num < 0;
+      var units = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+      if (neg) {
+        num = -num;
+      }
+
+      if (num < 1) {
+        return (neg ? "-" : "") + num + " B";
+      }
+
+      exponent = Math.min(
+        Math.floor(Math.log(num) / Math.log(1000)),
+        units.length - 1
+      );
+      num = (num / Math.pow(1000, exponent)).toFixed(2) * 1;
+      unit = units[exponent];
+
+      return (neg ? "-" : "") + num + " " + unit + "/s";
+    }
+  },
+
   methods: {
     fetch: function() {
       axios.get(this.href).then(res => {
@@ -122,6 +202,9 @@ export default {
       this.ep.delay.minTime = parseInt(this.ep.delay.minTime);
       this.ep.delay.maxTime = parseInt(this.ep.delay.maxTime);
       this.ep.failureRate.rate = parseInt(this.ep.failureRate.rate);
+      this.ep.transmissionRate.tx = parseInt(this.ep.transmissionRate.tx);
+      this.ep.transmissionRate.rx = parseInt(this.ep.transmissionRate.rx);
+      this.ep.port = parseInt(this.ep.port);
       this.ep.response.headers = this.httpHeadersToMap(this.replyHeaders);
       window.console.log(this.replyHeaders);
       axios.put(this.href, this.ep).then(res => (this.ep = res.data));
@@ -156,7 +239,7 @@ export default {
   computed: {
     delayRange() {
       if (this.ep.delay.minTime == 0) {
-        return "No";
+        return "no";
       }
 
       if (this.ep.delay.minTime > this.ep.delay.maxTime) {
@@ -170,22 +253,23 @@ export default {
       return this.ep.delay.minTime + "-" + this.ep.delay.maxTime + " ms";
     },
     handlerType() {
-      switch (this.ep.response.type){
+      switch (this.ep.response.type) {
         case "static":
-          return "Static Reply"
+          return "Static Reply";
         case "random":
-          return "Random Data"
+          return "Random Data";
       }
-    return this.ep.response.type
+      return this.ep.response.type;
     }
-
   },
 
   data: function() {
     return {
       ep: {
         delay: {},
-        failureRate: {}
+        failureRate: {},
+        transmissionRate: {},
+        response: {}
       },
       replyHeaders: "",
       collapsed: true,
@@ -233,7 +317,8 @@ export default {
         { code: 511, text: "511 - Network authenetication required" }
       ],
       responseTypes: [
-        { type: "static", text: "Static Response" }
+        { type: "static", text: "Static Response" },
+        { type: "echo", text: "Echo Request to Response" }
         //  { type: "proxy", text: "Proxy requests" },
         //  { type: "cruddb", text: "CRUD database" },
         //   { type: "random", text: "Random generated data" }

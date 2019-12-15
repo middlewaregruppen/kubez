@@ -20,6 +20,7 @@ func main() {
 	ac.RegisterAPI(&api.API{
 		Name: "testa",
 		Path: "/api/hello",
+		Port: 4000,
 		Response: api.Response{
 			Type:   "static",
 			Static: "world",
@@ -28,6 +29,7 @@ func main() {
 	ac.RegisterAPI(&api.API{
 		Name: "Test B",
 		Path: "/api/hello2",
+		Port: 4001,
 		Response: api.Response{
 			Type:   "static",
 			Static: "worldss",
@@ -37,7 +39,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/kubez/info", info.HandleGetInfo).Methods("GET")
 	r.HandleFunc("/kubez/action/{action}", actions.ActionHandler).Methods("POST")
-	r.PathPrefix("/api/").Handler(ac)
+	//r.PathPrefix("/api/").Handler(ac)
 
 	r.HandleFunc("/kubez/apicc/", ac.HandleGetEndpointList).Methods("GET")
 	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleUpdateEndpoint).Methods("PUT")
