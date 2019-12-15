@@ -3,7 +3,7 @@
     <v-list-item three-line>
       <v-list-item-content>
         <v-list-item-title class="subtitle mb-1">{{name}}</v-list-item-title>
-        <v-list-item-subtitle v-if="collapsed">{{ep.path}}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="collapsed">http://*:{{ep.port}}{{ep.path}}</v-list-item-subtitle>
 
         <div class="body-2" v-if="!collapsed">
           <v-form class="mt-4" ref="form">
@@ -135,8 +135,8 @@
       class="ml-4"
       v-if="!collapsed && !expanded "
       @click="saveAndCollapse()"
-    >Save and Close</v-btn>
-    <v-btn small class="ml-4" v-if="expanded" @click="update()">Save</v-btn>
+    >Apply and Close</v-btn>
+    <v-btn small class="ml-4" v-if="expanded" @click="update()">Apply</v-btn>
   </v-container>
 </template>
 <script>
