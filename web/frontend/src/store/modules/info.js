@@ -1,7 +1,7 @@
 
 const state = {
-    info: {},
     cGroup: {},
+    hostname : "",
     updated: null,
     statusCode: -1
   }
@@ -38,6 +38,7 @@ const mutations = {
     state.updated = Date.now()
 
       state.cGroup = info.cGroup
+      state.hostname = info.hostname
   },
   'SET_STATUS' (state, code) {
     state.statusCode = code
