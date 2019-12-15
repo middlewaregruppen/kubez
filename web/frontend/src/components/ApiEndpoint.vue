@@ -9,7 +9,7 @@
           <v-form class="mt-4" ref="form">
             <v-row no-gutters> 
             <v-col >
-            <v-text-field v-model="ep.port" label="Port" hint= "Port to listen to" placeholder="6080" required></v-text-field>
+            <v-text-field v-model="ep.port" label="Port" hint= "Port to listen to" placeholder="" required></v-text-field>
             </v-col>
             <v-col  cols = "10">
               <v-text-field v-model="ep.path" label="Path" required></v-text-field>
@@ -256,8 +256,8 @@ export default {
       switch (this.ep.response.type) {
         case "static":
           return "Static Reply";
-        case "random":
-          return "Random Data";
+        case "echo":
+          return "Echo back";
       }
       return this.ep.response.type;
     }
@@ -319,9 +319,9 @@ export default {
       responseTypes: [
         { type: "static", text: "Static Response" },
         { type: "echo", text: "Echo Request to Response" }
-        //  { type: "proxy", text: "Proxy requests" },
         //  { type: "cruddb", text: "CRUD database" },
-        //   { type: "random", text: "Random generated data" }
+        //  { type: "forward", text: "Forward requests" },
+        //  { type: "random", text: "Random generated data" }
       ]
     };
   }

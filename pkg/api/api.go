@@ -51,12 +51,14 @@ type Response struct {
 }
 
 type ApiLog struct {
-	Protocol   string `json:"proto"`
-	Method     string `json:"method"`
-	RequestURI string `json:"requestUri"`
-	StatusCode int    `json:"statusCode"`
-	UserAgent  string `json:"userAgent"`
-	RemoteAddr string `json:"remoteAddr"`
+	APIName     string `json:"apiName"`
+	ResposeType string `json:"respType"`
+	Protocol    string `json:"proto"`
+	Method      string `json:"method"`
+	RequestURI  string `json:"requestUri"`
+	StatusCode  int    `json:"statusCode"`
+	UserAgent   string `json:"userAgent"`
+	RemoteAddr  string `json:"remoteAddr"`
 }
 
 func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
@@ -64,11 +66,13 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 	var body io.Reader
 
 	lm := &ApiLog{
-		Protocol:   r.Proto,
-		Method:     r.Method,
-		RequestURI: r.RequestURI,
-		UserAgent:  r.UserAgent(),
-		RemoteAddr: r.RemoteAddr,
+		APIName:     a.Name,
+		ResposeType: a.Response.Type,
+		Protocol:    r.Proto,
+		Method:      r.Method,
+		RequestURI:  r.RequestURI,
+		UserAgent:   r.UserAgent(),
+		RemoteAddr:  r.RemoteAddr,
 	}
 
 	// RX Rate limiting in place?
