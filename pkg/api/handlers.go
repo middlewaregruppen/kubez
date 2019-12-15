@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -12,7 +13,13 @@ import (
 
 func (ac *APIController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	to := ac.apisServing(r.URL.RequestURI())
+	// Get the port
+	sp := strings.Split(r.Host, ":")
+	var port int64
+	if len(sp) == 2 {
+		port, _ = strconv.ParseInt(sp[1], 10, 64)
+	}
+	to := ac.apisServing(r.URL.RequestURI(), port)
 
 	if len(to) == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -85,12 +92,11 @@ func (ac *APIController) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Req
 	ac.HandleGetEndpoint(w, r)
 }
 
-func (ac *APIController) apisServing(path string) []*API {
-
+func (ac *APIController) apisServing(path string, port int64) []*API {
 	var res []*API
 	//Find API
 	for _, api := range ac.APICollection {
-		if api.Path == path {
+		if api.Path == path && api.Port == port {
 			res = append(res, api)
 		}
 	}
