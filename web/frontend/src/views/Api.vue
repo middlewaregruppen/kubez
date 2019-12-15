@@ -5,8 +5,16 @@
         <v-card>
           <v-row class="mt-2 ml-1">
             <NewApi href="/kubez/apicc/" />
+               <!-- Reload button -->
+            <v-btn  small icon dark v-on:click="load()">
+            <v-icon >mdi-refresh</v-icon>
+            </v-btn >
+            
 
             <Instructions href="api-control-center.md" />
+
+         
+
           </v-row>
         </v-card>
       </v-col>
@@ -36,8 +44,14 @@ export default {
     NewApi
   },
 
+  methods: {
+    load : function() {
+      axios.get("/kubez/apicc/").then(res => (this.endpoints = res.data));
+    }
+
+  },
   mounted: function() {
-    axios.get("/kubez/apicc/").then(res => (this.endpoints = res.data));
+    this.load()
   },
   data: function() {
     return {
