@@ -7,7 +7,7 @@
         <v-list-item-subtitle>This is SPARTAAAA!</v-list-item-subtitle>
         <div class="body-2 pl-3">
                 Hello ALLLAN!
-
+              <div>{{ headers }}</div>
         </div>
       </v-list-item-content>
 
@@ -17,8 +17,18 @@
   </v-container>
 </template>
 <script>
-  
+import axios from "axios"
+
 export default {
   name: "HTTPHeaders",
+
+  methods: {
+    printData: function () {
+      this.networkData = 'Requesting network data...'
+      //console.log('Getting some headers');
+      axios.get('/kubez/info').then(res => (this.networkData = res.data));
+      return 'This is Vue!!'
+    }
+  }
 };
 </script>

@@ -2,6 +2,7 @@
 const state = {
     info: {},
     cGroup: {},
+    Headers: {},
     updated: null,
   }
  
@@ -17,9 +18,12 @@ const getters = {
   },
   updated: (state) => {
     return state.updated
-  }
+  },
 
+  headers: (state) => {
+    return state.info.Headers
   }
+}
 
 
   // actions
