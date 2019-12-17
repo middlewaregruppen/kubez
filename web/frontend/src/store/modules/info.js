@@ -1,6 +1,7 @@
 
 const state = {
     cGroup: {},
+    httpheaders: {},
     hostname : "",
     updated: null,
     statusCode: -1
@@ -21,9 +22,12 @@ const getters = {
   },
   updateTime: (state) => {
     return state.updated
-  }
+  },
 
+  headers: (state) => {
+    return state.info.Headers
   }
+}
 
 
   // actions
@@ -39,6 +43,7 @@ const mutations = {
 
       state.cGroup = info.cGroup
       state.hostname = info.hostname
+      state.httpheaders = info.httpheaders
   },
   'SET_STATUS' (state, code) {
     state.statusCode = code
