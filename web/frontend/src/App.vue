@@ -62,6 +62,9 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Dr. Kubez</v-toolbar-title>
       <v-spacer></v-spacer>
+      {{hostname}}
+       <v-spacer></v-spacer>
+      <v-chip :color="connectionStatus.colour"  x-small>{{connectionStatus.code}}</v-chip>
     </v-app-bar>
 
     <v-content>
@@ -69,7 +72,16 @@
     </v-content>
 
     <v-footer app pl-3>
-      <span>Svenska Middlewaregruppen AB </span> <v-spacer></v-spacer> <span><a href ="https://middleware.se"> middleware.se </a></span> <v-spacer></v-spacer> <span><v-icon>mdi-github-circle</v-icon><a href ="https://github.com/middlewaregruppen/kubez">kubez </a> </span>
+      <span>Svenska Middlewaregruppen AB</span>
+      <v-spacer></v-spacer>
+      <span>
+        <a href="https://middleware.se">middleware.se</a>
+      </span>
+      <v-spacer></v-spacer>
+      <span>
+        <v-icon>mdi-github-circle</v-icon>
+        <a href="https://github.com/middlewaregruppen/kubez">kubez</a>
+      </span>
     </v-footer>
   </v-app>
 </template>
@@ -81,18 +93,37 @@ export default {
   props: {
     source: String
   },
-/*
+
   computed: {
-    updated: function () {
-      if  (Date.now() < (state.info.cGroup +2 ))  {
-        return false
+       hostname () {
+      return this.$store.state.info.hostname
+    },
+
+    connectionStatus: function() {
+       var c = {
+        loading: false
+      };
+      switch (this.$store.getters.status) {
+        case 200:
+          c.colour = "green darken-4"
+          c.code = "connected"
+          break
+        case -1:
+          c.code = ""
+          return 
+          
+
+        default:
+          c.colour = "red"
+          c.code = this.$store.getters.status
       }
-      return true
+      return c;
     }
-  },*/
+  },
 
   data: () => ({
-    drawer: null
+    drawer: null,
+
   }),
 
   created() {

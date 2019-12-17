@@ -9,6 +9,7 @@ require (
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/gobuffalo/packr/v2 v2.7.1 // indirect
 	github.com/gorilla/mux v1.7.3
+	github.com/juju/ratelimit v1.0.1
 	github.com/karrick/godirwalk v1.13.4 // indirect
 	github.com/markbates/pkger v0.12.8
 	github.com/opentracing/opentracing-go v1.1.0

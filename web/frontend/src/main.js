@@ -8,7 +8,17 @@ import axios from 'axios';
 
 
 Vue.config.productionTip = false
-setInterval( function () {axios.get('/kubez/info').then(res => store.commit('SET_INFO', res.data))}, 1000)
+setInterval(function () {
+  //store.commit('SET_STATUS', -1)
+  axios.get('/kubez/info').then(res => {
+    store.commit('SET_INFO', res.data)
+    store.commit('SET_STATUS', res.status)
+  }).catch(
+    err =>{
+      store.commit('SET_STATUS', err)
+    }
+  )
+}, 1000)
 
 new Vue({
   vuetify,
