@@ -326,7 +326,7 @@ export default {
       responseTypes: [
         { type: "static", text: "Static Response" },
         { type: "echo", text: "Echo Request to Response" },
-        { type: "restdb", text: "REST Database" }
+       // { type: "restdb", text: "REST Database" }
         //  { type: "forward", text: "Forward requests" },
         //  { type: "random", text: "Random generated data" }
       ]

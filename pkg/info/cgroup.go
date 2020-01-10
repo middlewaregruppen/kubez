@@ -4,7 +4,6 @@ package info
 
 import (
 	"io/ioutil"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -97,7 +96,6 @@ func getIntMapFromFile(file string) (map[string]int64, error) {
 func getIntArrayFromFile(file string) ([]int64, error) {
 	f, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Print(err)
 		return nil, err
 	}
 
