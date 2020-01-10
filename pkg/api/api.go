@@ -3,45 +3,31 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/juju/ratelimit"
 )
 
 type API struct {
-	Name             string           `json:"name"`
-	Port             int64            `json:"port"`
-	Path             string           `json:"path"`
-	CORS             bool             `json:"cors"`
-	LogToConsole     bool             `json:"logToConsole"`
-	Delay            Delay            `json:"delay"`
-	FailureRate      FailureRate      `json:"failureRate"`
-	TransmissionRate TransmissionRate `json:"transmissionRate"`
+	*Delay
+	*TransmissionRate
+	Name         string      `json:"name"`
+	Port         int64       `json:"port"`
+	Path         string      `json:"path"`
+	CORS         bool        `json:"cors"`
+	LogToConsole bool        `json:"logToConsole"`
+	FailureRate  FailureRate `json:"failureRate"`
 
 	Response Response `json:"response"`
 	Self     string   `json:"self"`
 }
 
-type Delay struct {
-	MinTime int `json:"minTime"`
-	MaxTime int `json:"maxTime"`
-}
-
 type FailureRate struct {
 	Rate          int `json:"rate"`
 	ResponseCodes int `json:"responseCodes"`
-}
-
-type TransmissionRate struct {
-	TX int64 `json:"tx"`
-	RX int64 `json:"rx"`
 }
 
 type Response struct {
@@ -75,27 +61,12 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 		RemoteAddr:  r.RemoteAddr,
 	}
 
-	// RX Rate limiting in place?
-	if a.TransmissionRate.RX > 0 {
-		bucket := ratelimit.NewBucketWithRate(float64(a.TransmissionRate.TX), a.TransmissionRate.TX)
-		body = ratelimit.Reader(r.Body, bucket)
-	} else {
-		body = r.Body
+	if a.TransmissionRate != nil {
+		body = a.TransmissionRate.RequestReader(r)
 	}
 
-	// Calulate how long time to delay.
-	delay := 0
-	if a.Delay.MinTime < a.Delay.MaxTime {
-		delay = rand.Intn(a.Delay.MaxTime-a.Delay.MinTime) + a.Delay.MinTime
-	}
-
-	// Delay
-	if delay > 0 {
-		d, err := time.ParseDuration(fmt.Sprintf("%dms", delay))
-		if err != nil {
-			log.Print(err)
-		}
-		time.Sleep(d)
+	if a.Delay != nil {
+		a.DelayRequest()
 	}
 
 	// Should we fail?
@@ -135,27 +106,17 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 		response = bytes.NewReader(b)
 	}
 
-	var out io.Reader
 	var bufSize int64
+	bufSize = 512 * 1024 // Default buffert size
 
-	// TX Rate limiting in place?
-	if a.TransmissionRate.TX > 0 {
-		bucket := ratelimit.NewBucketWithRate(float64(a.TransmissionRate.TX), a.TransmissionRate.TX)
-		out = ratelimit.Reader(response, bucket)
-		bufSize = a.TransmissionRate.TX
-		// Limit how large the buffer can be (0,5 mb)
-		if bufSize > 512*1024 {
-			bufSize = 512 * 1024
-		}
-	} else {
-		out = response
-		bufSize = 512 * 1024
+	if a.TransmissionRate != nil {
+		response, bufSize = a.TransmissionRate.ResponseReader(response)
 	}
 
 	buf := make([]byte, bufSize)
 
 	for {
-		n, err := out.Read(buf)
+		n, err := response.Read(buf)
 		if err == io.EOF {
 			break
 		}
