@@ -8,6 +8,7 @@ import (
 	"github.com/middlewaregruppen/kubez/pkg/actions"
 	"github.com/middlewaregruppen/kubez/pkg/api"
 	"github.com/middlewaregruppen/kubez/pkg/info"
+	"github.com/middlewaregruppen/kubez/pkg/network"
 )
 
 func main() {
@@ -25,6 +26,8 @@ func main() {
 	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleUpdateEndpoint).Methods("PUT")
 	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleGetEndpoint).Methods("GET")
 	r.HandleFunc("/kubez/apicc/", ac.HandleCreateEndpoint).Methods("POST")
+
+	r.HandleFunc("/kubez/connectioncheck/{target}", network.HandleCheckConnection).Methods("GET")
 
 	dir := http.FileServer(http.Dir("web/frontend/dist"))
 	r.PathPrefix("/").Handler(dir)
