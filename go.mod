@@ -18,6 +18,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/uber/jaeger-client-go v2.20.1+incompatible // indirect
 	github.com/uber/jaeger-lib v2.2.0+incompatible // indirect
+	go.etcd.io/bbolt v1.3.3
 	go.uber.org/atomic v1.5.1 // indirect
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413 // indirect
 	golang.org/x/sys v0.0.0-20191206220618-eeba5f6aabab // indirect

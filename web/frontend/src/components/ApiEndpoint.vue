@@ -7,25 +7,31 @@
 
         <div class="body-2" v-if="!collapsed">
           <v-form class="mt-4" ref="form">
-            <v-row no-gutters> 
-            <v-col >
-            <v-text-field v-model="ep.port" label="Port" hint= "Port to listen to" placeholder="" required></v-text-field>
-            </v-col>
-            <v-col  cols = "10">
-              <v-text-field v-model="ep.path" label="Path" required></v-text-field>
-            </v-col>
+            <v-row no-gutters>
+              <v-col>
+                <v-text-field
+                  v-model="ep.port"
+                  label="Port"
+                  hint="Port to listen to"
+                  placeholder
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="10">
+                <v-text-field v-model="ep.path" label="Path" required></v-text-field>
+              </v-col>
             </v-row>
             <v-row no-gutters>
               <v-col>
                 <v-text-field
-                  v-model="ep.delay.minTime"
+                  v-model="ep.delayMin"
                   label="Minimum delay in milliseconds"
                   placeholder="0"
                 ></v-text-field>
               </v-col>
               <v-col>
                 <v-text-field
-                  v-model="ep.delay.maxTime"
+                  v-model="ep.delayMax"
                   label="Maximum delay in milliseconds"
                   placeholder="0"
                 ></v-text-field>
@@ -52,7 +58,7 @@
             <v-row no-gutters>
               <v-col>
                 <v-text-field
-                  v-model="ep.transmissionRate.rx"
+                  v-model="ep.requestRate"
                   label="Request data transmission rate in bytes per seconds"
                   hint="0 means no limitation"
                   placeholder="0"
@@ -60,7 +66,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-model="ep.transmissionRate.tx"
+                  v-model="ep.responseRate"
                   label="Reply data transmission rate in bytes per seconds"
                   hint="0 means no limitation"
                   placeholder="0"
@@ -75,35 +81,29 @@
               label="Response Handler"
             ></v-select>
             <v-textarea
+              class="ml-3"
               v-if="ep.response.type=='static'"
               name="staticReplyContent"
               label="Static Reply Content"
               v-model="ep.response.static"
               hint="The payload that should be sent to the client"
             ></v-textarea>
+            <v-row no-gutters class="ml-3" v-if="ep.response.type=='restdb'">
+              Crud Contents..
+              Database file path.
+            </v-row>
 
             <v-row no-gutters>
               <v-col>
                 <v-row no-gutters>
                   <v-col>
-                <v-checkbox
-                  v-model="ep.cors"
-                 
-                  label="CORS from all domains"
-                ></v-checkbox>
-              </v-col>
-                <v-col >
-                <v-checkbox
-                  
-                  v-model="ep.logToConsole"
-                  label="Log requests to console"
-                ></v-checkbox>
-                </v-col>
-               
+                    <v-checkbox v-model="ep.cors" label="CORS from all domains"></v-checkbox>
+                  </v-col>
+                  <v-col>
+                    <v-checkbox v-model="ep.logToConsole" label="Log requests to console"></v-checkbox>
+                  </v-col>
                 </v-row>
-                <v-row no-gutters>
-         
-              </v-row>
+                <v-row no-gutters></v-row>
               </v-col>
               <v-col>
                 <v-textarea
@@ -120,11 +120,19 @@
       </v-list-item-content>
 
       <v-list-item-icon v-if="collapsed">
-        <v-chip small v-if="ep.transmissionRate.rx > 0" outlined>{{ep.transmissionRate.rx | prettyBytes}} rx limit</v-chip>
+        <v-chip
+          small
+          v-if="ep.requestRate > 0"
+          outlined
+        >{{ep.requestRate| prettyBytes}} request rate</v-chip>
         <v-chip small v-if="delayRange != 'no'" outlined>{{delayRange}} delay</v-chip>
         <v-chip small v-if="ep.failureRate.rate > 0" outlined>{{ep.failureRate.rate}}% failure rate</v-chip>
         <v-chip small outlined>{{handlerType}}</v-chip>
-        <v-chip small  v-if="ep.transmissionRate.tx > 0"  outlined>{{ep.transmissionRate.tx | prettyBytes}} tx reply</v-chip>
+        <v-chip
+          small
+          v-if="ep.responseRate > 0"
+          outlined
+        >{{ep.responseRate| prettyBytes}} response rate </v-chip>
         <v-btn icon class="ml-4" @click="collapsed = false">
           <v-icon color="grey lighten-1">mdi-settings</v-icon>
         </v-btn>
@@ -199,14 +207,13 @@ export default {
       });
     },
     update: function() {
-      this.ep.delay.minTime = parseInt(this.ep.delay.minTime);
-      this.ep.delay.maxTime = parseInt(this.ep.delay.maxTime);
+      this.ep.delayMin = parseInt(this.ep.delayMin);
+      this.ep.delayMax = parseInt(this.ep.delayMax);
       this.ep.failureRate.rate = parseInt(this.ep.failureRate.rate);
-      this.ep.transmissionRate.tx = parseInt(this.ep.transmissionRate.tx);
-      this.ep.transmissionRate.rx = parseInt(this.ep.transmissionRate.rx);
+      this.ep.responseRate = parseInt(this.ep.responseRate);
+      this.ep.requestRate = parseInt(this.ep.requestRate);
       this.ep.port = parseInt(this.ep.port);
       this.ep.response.headers = this.httpHeadersToMap(this.replyHeaders);
-      window.console.log(this.replyHeaders);
       axios.put(this.href, this.ep).then(res => (this.ep = res.data));
     },
     saveAndCollapse: function() {
@@ -238,19 +245,19 @@ export default {
 
   computed: {
     delayRange() {
-      if (this.ep.delay.minTime == 0) {
+      if (this.ep.delayMin == undefined) {
         return "no";
       }
 
-      if (this.ep.delay.minTime > this.ep.delay.maxTime) {
-        return this.ep.delay.minTime + " ms";
+      if (this.ep.delayMin > this.ep.delayMax) {
+        return this.ep.delayMin + " ms";
       }
 
-      if (this.ep.delay.minTime == this.ep.delay.maxTime) {
-        return this.ep.delay.maxTime + " ms";
+      if (this.ep.delayMin == this.ep.delayMax) {
+        return this.ep.delayMax + " ms";
       }
 
-      return this.ep.delay.minTime + "-" + this.ep.delay.maxTime + " ms";
+      return this.ep.delayMin + "-" + this.ep.delayMax + " ms";
     },
     handlerType() {
       switch (this.ep.response.type) {
@@ -258,6 +265,8 @@ export default {
           return "Static Reply";
         case "echo":
           return "Echo back";
+        case "restdb":
+          return "REST Database";
       }
       return this.ep.response.type;
     }
@@ -266,9 +275,7 @@ export default {
   data: function() {
     return {
       ep: {
-        delay: {},
         failureRate: {},
-        transmissionRate: {},
         response: {}
       },
       replyHeaders: "",
@@ -318,8 +325,8 @@ export default {
       ],
       responseTypes: [
         { type: "static", text: "Static Response" },
-        { type: "echo", text: "Echo Request to Response" }
-        //  { type: "cruddb", text: "CRUD database" },
+        { type: "echo", text: "Echo Request to Response" },
+        { type: "restdb", text: "REST Database" }
         //  { type: "forward", text: "Forward requests" },
         //  { type: "random", text: "Random generated data" }
       ]
