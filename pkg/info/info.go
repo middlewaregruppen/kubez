@@ -10,6 +10,7 @@ type Info struct {
 	CGroup   *CGroup             `json:"cGroup"`
 	Headers  map[string][]string `json:"httpheaders"`
 	Hostname string              `json:"hostname"`
+	K8SInfo  *K8SInfo            `json:"k8sinfo"`
 }
 
 //HandleGetInfo - get information
@@ -18,9 +19,12 @@ func HandleGetInfo(w http.ResponseWriter, r *http.Request) {
 	cg := GetCgroup()
 	httpheaders := GetHTTPHeaders(r)
 
+	ki := GetK8SInfo()
+
 	rt := &Info{
 		CGroup:  cg,
 		Headers: httpheaders,
+		K8SInfo: ki,
 	}
 
 	/*

@@ -40,12 +40,12 @@ darwin: dep
 
 docker_build: linux
 	#docker run --rm -v "${PWD}":/go/src/github.com/${GITHUB_USERNAME}/${BINARY}  -w /go/src/github.com/${GITHUB_USERNAME}/${BINARY}  make fmt test
-	docker build -t docker.pkg.github.com/${GITHUB_USERNAME}/${BINARY}:${VERSION} .
-	docker tag docker.pkg.github.com/${GITHUB_USERNAME}/${BINARY}:${VERSION}  docker.pkg.github.com/${GITHUB_USERNAME}/${BINARY}:latest
+	docker build -t docker.io/${GITHUB_USERNAME}/${BINARY}:${VERSION} .
+	docker tag docker.io/${GITHUB_USERNAME}/${BINARY}:${VERSION}  docker.io/${GITHUB_USERNAME}/${BINARY}:latest
 
 docker_push:
-	docker push docker.pkg.github.com/${GITHUB_USERNAME}/${BINARY}:${VERSION}
-	docker push docker.pkg.github.com/${GITHUB_USERNAME}/${BINARY}:latest
+	docker push docker.io/${GITHUB_USERNAME}/${BINARY}:${VERSION}
+	docker push docker.io/${GITHUB_USERNAME}/${BINARY}:latest
 
 docker: docker_build docker_push
 

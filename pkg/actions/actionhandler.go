@@ -1,17 +1,25 @@
 package actions
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
+	petname "github.com/dustinkirkland/golang-petname"
 	"github.com/gorilla/mux"
+	appv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 var Data [][]byte
@@ -20,7 +28,14 @@ type Message struct {
 	Test string
 }
 
+type K8SReq struct {
+	Namespaces  string `json:"namespaces"`
+	Deployments string `json:"deployments"`
+	Pods        string `json:"pods"`
+}
+
 func ActionHandler(rw http.ResponseWriter, r *http.Request) {
+
 	vars := mux.Vars(r)
 
 	switch vars["action"] {
@@ -42,6 +57,94 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		//RespondToHealth = false
 
 		rw.Write([]byte("Letting /health time out from now on"))
+
+	case "k8sload":
+		rand.Seed(time.Now().UnixNano())
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		k8sreq := &K8SReq{}
+		err = json.Unmarshal(b, k8sreq)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err.Error())
+		}
+		// creates the clientset
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		// Create namespaces
+		ns, err := strconv.Atoi(k8sreq.Namespaces)
+
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		dps, err := strconv.Atoi(k8sreq.Deployments)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		pdsI, err := strconv.Atoi(k8sreq.Pods)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		pds := int32(pdsI)
+
+		for i := 0; i < ns; i++ {
+
+			nsName := fmt.Sprintf("kubez-%s", petname.Generate(3, "-"))
+
+			clientset.CoreV1().Namespaces().Create(&v1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: nsName,
+				},
+			})
+
+			for d := 0; d < dps; d++ {
+
+				dpNmae := petname.Generate(4, "-")
+
+				clientset.AppsV1().Deployments(nsName).Create(&appv1.Deployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: dpNmae,
+					},
+					Spec: appv1.DeploymentSpec{
+						Replicas: &pds,
+						Selector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{"app": "kubez"},
+						},
+						Template: v1.PodTemplateSpec{
+							ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": "kubez"}},
+							Spec: v1.PodSpec{
+								Containers: []v1.Container{
+									{Name: "kubez",
+										Image: "docker.io/middlewaregruppen/kubez",
+										Ports: []v1.ContainerPort{
+											{ContainerPort: 3000},
+										},
+									},
+								},
+							},
+						},
+					},
+				})
+			}
+
+		}
 
 	case "fileinfo":
 		nofiles := 0
