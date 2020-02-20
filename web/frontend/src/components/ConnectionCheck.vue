@@ -5,7 +5,7 @@
         <div class="headline mb-4">{{title}}</div>
         <v-list-item-subtitle>{{subtitle}}</v-list-item-subtitle>
 
-        <div class="body-2 pl-3">
+        <div class="body-2">
           <v-text-field
             label="Host and port"
             hint="e.g middleware.se:443 or 10.5.12.12:22"
@@ -16,13 +16,15 @@
               <v-btn color="blue darken-1" @click="check()" text>Check</v-btn>
             </v-col>
             <v-col>
-              <v-chip color="gray" v-if="inProgress">Connecting ...</v-chip>
+              <v-chip color="gray" small v-if="inProgress">Connecting ...</v-chip>
               <v-chip
                 color="green darken-4"
+                small
                 v-if="res.success && !inProgress && hasChecked"
               >Connection to {{res.address}} successful</v-chip>
               <v-chip
                 color="red darken-4"
+                small
                 v-if="!res.success && !inProgress && hasChecked"
               >{{res.error}}</v-chip>
             </v-col>

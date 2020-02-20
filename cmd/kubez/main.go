@@ -27,7 +27,11 @@ func main() {
 	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleGetEndpoint).Methods("GET")
 	r.HandleFunc("/kubez/apicc/", ac.HandleCreateEndpoint).Methods("POST")
 
+	// Connection Checker
 	r.HandleFunc("/kubez/connectioncheck/{target}", network.HandleCheckConnection).Methods("GET")
+
+	// DNS Lookup
+	r.HandleFunc("/kubez/dnslookup/{type}/{name}", network.HandleDNSLookup).Methods("GET")
 
 	dir := http.FileServer(http.Dir("web/frontend/dist"))
 	r.PathPrefix("/").Handler(dir)
