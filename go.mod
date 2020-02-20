@@ -12,6 +12,7 @@ require (
 	github.com/juju/ratelimit v1.0.1
 	github.com/karrick/godirwalk v1.13.4 // indirect
 	github.com/markbates/pkger v0.12.8
+	github.com/miekg/dns v1.1.27
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.2.1 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
