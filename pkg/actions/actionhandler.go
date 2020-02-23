@@ -17,6 +17,7 @@ import (
 	"github.com/gorilla/mux"
 	appv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -29,9 +30,14 @@ type Message struct {
 }
 
 type K8SReq struct {
-	Namespaces  string `json:"namespaces"`
-	Deployments string `json:"deployments"`
-	Pods        string `json:"pods"`
+	Namespaces      string `json:"namespaces"`
+	Deployments     string `json:"deployments"`
+	Pods            string `json:"pods"`
+	RequestedCPU    string `json:"reqCPU"`
+	RequestedMemory string `json:"reqMem"`
+	LimitCPU        string `json:"limCPU"`
+	LimitMemory     string `json:"limMem"`
+	LoadProfile     string `json:"profile"`
 }
 
 func ActionHandler(rw http.ResponseWriter, r *http.Request) {
@@ -59,10 +65,22 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte("Letting /health time out from now on"))
 
 	case "k8sload":
+
 		rand.Seed(time.Now().UnixNano())
+
+		nsb, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+		cNs := string(nsb)
+
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
+			log.Printf("%s", err)
 			return
 		}
 
@@ -83,14 +101,6 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		// Create namespaces
-		ns, err := strconv.Atoi(k8sreq.Namespaces)
-
-		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
 		dps, err := strconv.Atoi(k8sreq.Deployments)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
@@ -104,45 +114,75 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 		pds := int32(pdsI)
 
-		for i := 0; i < ns; i++ {
+		// Limits and requests in podspec.
+		limits := make(v1.ResourceList)
+		if len(k8sreq.LimitCPU) > 0 && k8sreq.LimitCPU != "0" {
+			limits["cpu"], _ = resource.ParseQuantity(k8sreq.LimitCPU)
+		}
+		if len(k8sreq.LimitMemory) > 0 && k8sreq.LimitMemory != "0" {
+			limits["memory"], _ = resource.ParseQuantity(k8sreq.LimitMemory)
+		}
 
-			nsName := fmt.Sprintf("kubez-%s", petname.Generate(3, "-"))
+		requests := make(v1.ResourceList)
+		if len(k8sreq.RequestedCPU) > 0 && k8sreq.RequestedCPU != "0" {
+			requests["cpu"], _ = resource.ParseQuantity(k8sreq.RequestedCPU)
+		}
+		if len(k8sreq.RequestedMemory) > 0 && k8sreq.RequestedMemory != "0" {
+			requests["memory"], _ = resource.ParseQuantity(k8sreq.RequestedMemory)
+		}
 
-			clientset.CoreV1().Namespaces().Create(&v1.Namespace{
+		// Load Profile
+		command := []string{}
+
+		switch k8sreq.LoadProfile {
+		case "none":
+			command = []string{"/kubez"}
+		case "cpu":
+			command = []string{"/load100cpu"}
+		case "mem100":
+			command = []string{"/loadmem100m"}
+		case "mem200":
+			command = []string{"/loadmem200m"}
+		case "mem2000":
+			command = []string{"/loadmem2g"}
+
+		}
+
+		for d := 0; d < dps; d++ {
+
+			dpNmae := fmt.Sprintf("kl-%s", petname.Generate(3, "-"))
+
+			clientset.AppsV1().Deployments(cNs).Create(&appv1.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: nsName,
+					Name: dpNmae,
 				},
-			})
-
-			for d := 0; d < dps; d++ {
-
-				dpNmae := petname.Generate(4, "-")
-
-				clientset.AppsV1().Deployments(nsName).Create(&appv1.Deployment{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: dpNmae,
+				Spec: appv1.DeploymentSpec{
+					Replicas: &pds,
+					Selector: &metav1.LabelSelector{
+						MatchLabels: map[string]string{"app": dpNmae},
 					},
-					Spec: appv1.DeploymentSpec{
-						Replicas: &pds,
-						Selector: &metav1.LabelSelector{
-							MatchLabels: map[string]string{"app": "kubez"},
-						},
-						Template: v1.PodTemplateSpec{
-							ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": "kubez"}},
-							Spec: v1.PodSpec{
-								Containers: []v1.Container{
-									{Name: "kubez",
-										Image: "docker.io/middlewaregruppen/kubez",
-										Ports: []v1.ContainerPort{
-											{ContainerPort: 3000},
-										},
+					Template: v1.PodTemplateSpec{
+						ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": dpNmae}},
+						Spec: v1.PodSpec{
+							Containers: []v1.Container{
+
+								{
+									Resources: v1.ResourceRequirements{
+										Limits:   limits,
+										Requests: requests,
 									},
+									Name:  "kubez",
+									Image: "docker.io/middlewaregruppen/kubez",
+									Ports: []v1.ContainerPort{
+										{ContainerPort: 3000},
+									},
+									Command: command,
 								},
 							},
 						},
 					},
-				})
-			}
+				},
+			})
 
 		}
 

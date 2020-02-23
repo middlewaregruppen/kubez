@@ -8,44 +8,84 @@
         <div class="body-2 pl-3">
           <v-row class="pt-3" no-gutters>
             <v-col>
-              Namespaces
+              ..
+              <br />
+              <b>Cluster:</b>
+              <br />
+              <b>Namespace:</b>
+            </v-col>
+            <v-col>
+              <b>Namespaces</b>
               <br />
               {{ k8s.noNamespaces }}
+              <br />
+              {{ k8s.namespace }}
             </v-col>
             <v-col>
-              Deployments
+              <b>Deployments</b>
               <br />
               {{ k8s.noDeployments }}
+              <br />
+              {{ k8s.noDeploymentsinNs }}
             </v-col>
             <v-col>
-              Pods
+              <b>Pods</b>
               <br />
               {{ k8s.noPods }}
+              <br />
+              {{ k8s.noPodsInNs}}
             </v-col>
             <v-col>
-              Ready Pods
+              <b>Ready Pods</b>
               <br />
               {{k8s.noReadyPods}}
+              <br />
+              {{k8s.noReadyPodsInNs}}
             </v-col>
           </v-row>
           <v-row class="pt-3">
             <v-col>
-              <v-text-field v-model="namespaces" label="Namespaces" value="1" type="number" />
-            </v-col>
-            <v-col>
               <v-text-field
-                v-model="deployments"
-                label="Deployments per NS"
-                value="1"
+                v-model="namespaces"
+                label="Namespaces"
+                hint=" "
+                disabled
                 type="number"
               />
+            </v-col>
+            <v-col>
+              <v-text-field v-model="deployments" label="Deployments" hint="Number to create" />
             </v-col>
             <v-col>
               <v-text-field v-model="pods" label="Pods per Deployments" type="number" />
             </v-col>
           </v-row>
           <v-row no-gutters>
-            <v-btn x-small v-on:click="create">Create {{namespaces * deployments * pods}} pods</v-btn>
+            <v-col>
+              <v-text-field v-model="reqCPU" label="Req. CPU" hint="ex. 200m" />
+            </v-col>
+            <v-col>
+              <v-text-field v-model="reqMem" label="Req. Memory" hint="ex. 120Mi" />
+            </v-col>
+            <v-col>
+              <v-text-field v-model="limCPU" label="Limit CPU" hint="ex. 500m" />
+            </v-col>
+            <v-col>
+              <v-text-field v-model="limMem" label="Limit Memory" hint="ex. 150Mi" />
+            </v-col>
+            <v-col>
+              <v-select
+                v-model="profile"
+                :items="profiles"
+                item-text="text"
+                item-value="profile"
+                label="Load"
+                
+              ></v-select>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-btn x-small v-on:click="create">Create {{ deployments * pods}} pods</v-btn>
           </v-row>
         </div>
       </v-list-item-content>
@@ -55,6 +95,12 @@
     </v-list-item>
   </v-container>
 </template>
+
+<style>
+  .v-select input {
+    font-size: 1.2em;
+  }
+</style>
 <script>
 import { mapState } from "vuex";
 import Instructions from "@/components/Instructions.vue";
@@ -72,15 +118,32 @@ export default {
         .post("/kubez/action/k8sload", {
           namespaces: this.namespaces,
           deployments: this.deployments,
-          pods: this.pods
+          pods: this.pods,
+          reqCPU: this.reqCPU,
+          reqMem: this.reqMem,
+          limCPU: this.limCPU,
+          limMem: this.limMem,
+          profile: this.profile
         })
         .then(res => (this.cpu = res.data));
     }
   },
   data: () => ({
-    namespaces: "1",
+    namespaces: "0",
     deployments: "1",
-    pods: "1"
+    pods: "1",
+    reqCPU: "0",
+    reqMem: "0",
+    limCPU: "0",
+    limMem: "0",
+    profile: "none",
+    profiles: [
+      { profile: "none", text: "none" },
+      { profile: "cpu", text: "CPU 100%" },
+      { profile: "mem100", text: "100 Mb mem" },
+      { profile: "mem500", text: "500 Mb mem" },
+      { profile: "mem2000", text: "2 Gb mem" }
+    ]
   }),
   computed: mapState({
     k8s: state => state.info.k8sinfo

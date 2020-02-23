@@ -62,7 +62,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Dr. Kubez</v-toolbar-title>
       <v-spacer></v-spacer>
-      {{hostname}}
+      {{hostname}} in {{namespace}}
        <v-spacer></v-spacer>
       <v-chip :color="connectionStatus.colour"  x-small>{{connectionStatus.code}}</v-chip>
     </v-app-bar>
@@ -98,6 +98,10 @@ export default {
        hostname () {
       return this.$store.state.info.hostname
     },
+      namespace (){
+        return this.$store.state.info.k8sinfo.namespace
+      }
+      ,
 
     connectionStatus: function() {
        var c = {

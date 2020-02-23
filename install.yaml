@@ -2,15 +2,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kubez
+  name: kubez-app
 spec:
   selector:
     matchLabels:
-      app: kubez
+      app: kubez-app
   template:
     metadata:
       labels:
-        app: kubez
+        app: kubez-app
     spec:
       containers:
       - name: kubez
@@ -18,6 +18,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
+        resources:
+          requests:
+            cpu: 300m
+            memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 100Mi
 ...
 ---
 apiVersion: v1
@@ -27,9 +34,10 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: kubez
+    app: kubez-app
   ports:
   - nodePort: 31503
     port: 3000
     targetPort: 3000
 ...
+
