@@ -1,17 +1,26 @@
 package actions
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
+	petname "github.com/dustinkirkland/golang-petname"
 	"github.com/gorilla/mux"
+	appv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 var Data [][]byte
@@ -20,7 +29,19 @@ type Message struct {
 	Test string
 }
 
+type K8SReq struct {
+	Namespaces      string `json:"namespaces"`
+	Deployments     string `json:"deployments"`
+	Pods            string `json:"pods"`
+	RequestedCPU    string `json:"reqCPU"`
+	RequestedMemory string `json:"reqMem"`
+	LimitCPU        string `json:"limCPU"`
+	LimitMemory     string `json:"limMem"`
+	LoadProfile     string `json:"profile"`
+}
+
 func ActionHandler(rw http.ResponseWriter, r *http.Request) {
+
 	vars := mux.Vars(r)
 
 	switch vars["action"] {
@@ -42,6 +63,128 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		//RespondToHealth = false
 
 		rw.Write([]byte("Letting /health time out from now on"))
+
+	case "k8sload":
+
+		rand.Seed(time.Now().UnixNano())
+
+		nsb, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+		cNs := string(nsb)
+
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			log.Printf("%s", err)
+			return
+		}
+
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			log.Printf("%s", err)
+			return
+		}
+
+		k8sreq := &K8SReq{}
+		err = json.Unmarshal(b, k8sreq)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err.Error())
+		}
+		// creates the clientset
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		dps, err := strconv.Atoi(k8sreq.Deployments)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		pdsI, err := strconv.Atoi(k8sreq.Pods)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		pds := int32(pdsI)
+
+		// Limits and requests in podspec.
+		limits := make(v1.ResourceList)
+		if len(k8sreq.LimitCPU) > 0 && k8sreq.LimitCPU != "0" {
+			limits["cpu"], _ = resource.ParseQuantity(k8sreq.LimitCPU)
+		}
+		if len(k8sreq.LimitMemory) > 0 && k8sreq.LimitMemory != "0" {
+			limits["memory"], _ = resource.ParseQuantity(k8sreq.LimitMemory)
+		}
+
+		requests := make(v1.ResourceList)
+		if len(k8sreq.RequestedCPU) > 0 && k8sreq.RequestedCPU != "0" {
+			requests["cpu"], _ = resource.ParseQuantity(k8sreq.RequestedCPU)
+		}
+		if len(k8sreq.RequestedMemory) > 0 && k8sreq.RequestedMemory != "0" {
+			requests["memory"], _ = resource.ParseQuantity(k8sreq.RequestedMemory)
+		}
+
+		// Load Profile
+		command := []string{}
+
+		switch k8sreq.LoadProfile {
+		case "none":
+			command = []string{"/kubez"}
+		case "cpu":
+			command = []string{"/load100cpu"}
+		case "mem100":
+			command = []string{"/loadmem100m"}
+		case "mem200":
+			command = []string{"/loadmem200m"}
+		case "mem2000":
+			command = []string{"/loadmem2g"}
+
+		}
+
+		for d := 0; d < dps; d++ {
+
+			dpNmae := fmt.Sprintf("kl-%s", petname.Generate(3, "-"))
+
+			clientset.AppsV1().Deployments(cNs).Create(&appv1.Deployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: dpNmae,
+				},
+				Spec: appv1.DeploymentSpec{
+					Replicas: &pds,
+					Selector: &metav1.LabelSelector{
+						MatchLabels: map[string]string{"app": dpNmae},
+					},
+					Template: v1.PodTemplateSpec{
+						ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": dpNmae}},
+						Spec: v1.PodSpec{
+							Containers: []v1.Container{
+
+								{
+									Resources: v1.ResourceRequirements{
+										Limits:   limits,
+										Requests: requests,
+									},
+									Name:  "kubez",
+									Image: "docker.io/middlewaregruppen/kubez",
+									Ports: []v1.ContainerPort{
+										{ContainerPort: 3000},
+									},
+									Command: command,
+								},
+							},
+						},
+					},
+				},
+			})
+
+		}
 
 	case "fileinfo":
 		nofiles := 0

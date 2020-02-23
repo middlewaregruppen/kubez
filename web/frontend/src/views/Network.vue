@@ -12,7 +12,7 @@
         </v-card>
    
          <v-card class="mt-3">
-          <DNSLookup />
+          <!--DNSLookup /-->
         </v-card>
       </v-col>
     </v-row>
@@ -23,14 +23,14 @@
 // @ is an alias to /src
 import HTTPHeaders from "@/components/HTTPHeaders.vue";
 import ConnectionCheck from "@/components/ConnectionCheck.vue";
-import DNSLookup from "@/components/DNSLookup.vue";
+//import DNSLookup from "@/components/DNSLookup.vue";
 
 export default {
   name: "Network",
   components: {
     HTTPHeaders,
     ConnectionCheck, 
-    DNSLookup
+   // DNSLookup
   }
 };
 </script>

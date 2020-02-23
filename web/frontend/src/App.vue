@@ -2,14 +2,14 @@
   <v-app id="inspire">
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
-        <v-list-item link @click="$router.push('/')">
+        <!--v-list-item link @click="$router.push('/')">
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Pod info</v-list-item-title>
+            <v-list-item-title>asd</v-list-item-title>
           </v-list-item-content>
-        </v-list-item>
+        </v-list-item-->
 
         <v-list-item link @click="$router.push('api')">
           <v-list-item-action>
@@ -29,14 +29,14 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link @click="$router.push('observability')">
+        <!--v-list-item link @click="$router.push('observability')">
           <v-list-item-action>
             <v-icon>mdi-popcorn</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Observability</v-list-item-title>
           </v-list-item-content>
-        </v-list-item>
+        </v-list-item-->
 
         <v-list-item link @click="$router.push('network')">
           <v-list-item-action>
@@ -47,14 +47,14 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item link @click="$router.push('authentication')">
+        <!--v-list-item link @click="$router.push('authentication')">
           <v-list-item-action>
             <v-icon>mdi-key</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>User Authentication</v-list-item-title>
           </v-list-item-content>
-        </v-list-item>
+        </v-list-item-->
       </v-list>
     </v-navigation-drawer>
 
@@ -62,7 +62,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Dr. Kubez</v-toolbar-title>
       <v-spacer></v-spacer>
-      {{hostname}}
+      {{hostname}} in {{namespace}}
        <v-spacer></v-spacer>
       <v-chip :color="connectionStatus.colour"  x-small>{{connectionStatus.code}}</v-chip>
     </v-app-bar>
@@ -98,6 +98,10 @@ export default {
        hostname () {
       return this.$store.state.info.hostname
     },
+      namespace (){
+        return this.$store.state.info.k8sinfo.namespace
+      }
+      ,
 
     connectionStatus: function() {
        var c = {

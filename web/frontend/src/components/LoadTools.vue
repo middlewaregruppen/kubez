@@ -1,25 +1,18 @@
 <template>
   <v-container fluid>
-    <v-list-item three-line>
-      <v-list-item-content>
-        <v-row no-gutters>
-          <v-col body-2>
-            <v-card class="pa-2" outlined tile>
-              <span class="caption">Load CPU</span> <v-btn x-small v-on:click="loadCpu">once</v-btn><!--v-btn x-small v-on:click="loadCpu">For 1 min</v-btn><v-btn x-small v-on:click="loadCpu">For 5 min</v-btn><v-btn x-small v-on:click="loadCpu">Forever</v-btn-->
-            </v-card>
-            <v-card class="pa-2" outlined tile><span class="caption" >{{cpu}}</span></v-card>
-          </v-col>
+    <v-row no-gutters>
 
-            <v-col >
-            <v-card class="pa-2" outlined tile>
-              <v-btn x-small v-on:click="malloc">Malloc 20 Mb</v-btn>
-            </v-card>
-            <v-card body-2 class="pa-2" outlined tile><span class="caption" >{{memory}}</span></v-card>
-          </v-col>
-         
-        </v-row>
-      </v-list-item-content>
-    </v-list-item>
+        <v-card class="pa-2"  tile>
+          <v-btn x-small v-on:click="loadCpu">Load CPU</v-btn> <br/>
+          <!--v-btn x-small v-on:click="loadCpu">For 1 min</v-btn><v-btn x-small v-on:click="loadCpu">For 5 min</v-btn><v-btn x-small v-on:click="loadCpu">Forever</v-btn-->
+          <span class="caption">{{cpu}}</span>
+        </v-card>
+
+        <v-card class="pa-2" tile>
+          <v-btn x-small v-on:click="malloc">Allocate 20 Mb</v-btn><br/> <span class="caption">{{memory}}</span>
+        </v-card>
+        
+    </v-row>
   </v-container>
 </template>
 <script>
