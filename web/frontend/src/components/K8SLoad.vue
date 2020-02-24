@@ -45,13 +45,12 @@
           </v-row>
           <v-row class="pt-3">
             <v-col>
-              <v-text-field
-                v-model="namespaces"
-                label="Namespaces"
-                hint=" "
-                disabled
-                type="number"
-              />
+                        <v-select
+                v-model="namespace"
+                :items="k8s.namespacesInCluster"
+                label="Namespace"
+                
+              ></v-select>
             </v-col>
             <v-col>
               <v-text-field v-model="deployments" label="Deployments" hint="Number to create" />
@@ -116,7 +115,7 @@ export default {
     create: function() {
       axios
         .post("/kubez/k8sload", {
-          namespaces: this.namespaces,
+          namespace: this.namespace,
           deployments: this.deployments,
           pods: this.pods,
           reqCPU: this.reqCPU,
@@ -129,7 +128,7 @@ export default {
     }
   },
   data: () => ({
-    namespaces: "0",
+    namespaces: "",
     deployments: "1",
     pods: "1",
     reqCPU: "0",
@@ -141,7 +140,9 @@ export default {
       { profile: "none", text: "none" },
       { profile: "cpu", text: "cpu 100%" },
       { profile: "mem100", text: "mem 100 Mb" },
-      { profile: "mem2000", text: "mem 2000 Mb" }
+      { profile: "mem2000", text: "mem 2000 Mb" },
+      { profile: "log100ms", text: "log ~10lns/s" },
+      { profile: "log9ms", text: "log ~100lns/s" }
     ]
   }),
   computed: mapState({

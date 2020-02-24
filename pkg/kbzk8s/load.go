@@ -35,6 +35,9 @@ import (
 //       - "cpu", will load the cpu 100%
 //       - "mem200", will allocate 200 Mb Ram
 //       - "mem2000", will allocate 2000 Mb Ram.
+//		 - "log100ms", write a log line and waits 100ms (~10 lines/s)
+//       - "log9ms" write a log line and waits 9ms (~100 lines/s)
+//       - "log3ms" write a log line and waits 3ms (~300 lines/s)
 
 type K8SLoad struct {
 	Namespace       string `json:"namespace"`
@@ -105,6 +108,18 @@ func Load(load *K8SLoad) error {
 	case "mem2000":
 		command = []string{"/loader"}
 		args = []string{"-profile", "mem", "-mb", "2000"}
+
+	case "log100ms":
+		command = []string{"/loader"}
+		args = []string{"-profile", "log", "-logwait", "100ms"}
+
+	case "log9ms":
+		command = []string{"/loader"}
+		args = []string{"-profile", "log", "-logwait", "9ms"}
+
+	case "log3ms":
+		command = []string{"/loader"}
+		args = []string{"-profile", "lgo", "-logwait", "3ms"}
 	}
 
 	for d := 0; d < load.Deployments; d++ {

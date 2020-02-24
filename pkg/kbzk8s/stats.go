@@ -15,14 +15,15 @@ import (
 // the pod is running in.
 
 type Stats struct {
-	Namespace                      string `json:"namespace"`
-	NumberOfNamespaces             int    `json:"noNamespaces"`
-	NumberOfPods                   int    `json:"noPods"`
-	NumberOfDeployments            int    `json:"noDeployments"`
-	NumberOfReadyPods              int    `json:"noReadyPods"`
-	NumberOfPodsInNamespace        int    `json:"noPodsInNs"`
-	NumberOfReadyPodsInNamespace   int    `json:"noReadyPodsInNs"`
-	NumberOfDeploymentsInNamespace int    `json:"noDeploymentsinNs"`
+	ClusterNameSpaces              []string `json:"namespacesInCluster"`
+	Namespace                      string   `json:"namespace"`
+	NumberOfNamespaces             int      `json:"noNamespaces"`
+	NumberOfPods                   int      `json:"noPods"`
+	NumberOfDeployments            int      `json:"noDeployments"`
+	NumberOfReadyPods              int      `json:"noReadyPods"`
+	NumberOfPodsInNamespace        int      `json:"noPodsInNs"`
+	NumberOfReadyPodsInNamespace   int      `json:"noReadyPodsInNs"`
+	NumberOfDeploymentsInNamespace int      `json:"noDeploymentsinNs"`
 }
 
 // GetStats returns a Stats Struct. Errors are not propegated to the calling function.
@@ -57,6 +58,10 @@ func GetStats() *Stats {
 	// Ignore errors.
 	if err == nil {
 		ki.NumberOfNamespaces = len(nslist.Items)
+
+		for _, ns := range nslist.Items {
+			ki.ClusterNameSpaces = append(ki.ClusterNameSpaces, ns.GetName())
+		}
 	}
 
 	// POD in Cluster

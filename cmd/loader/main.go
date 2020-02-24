@@ -4,17 +4,22 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"strings"
 	"time"
+
+	petname "github.com/dustinkirkland/golang-petname"
 )
 
 func main() {
 
 	var profile string
 	var megaBytes int
+	var logwait time.Duration
 	flag.CommandLine.StringVar(&profile, "profile", "none", "The loadprofile to run")
 	flag.CommandLine.IntVar(&megaBytes, "mb", 100, "MB to allocate if load profile is mem")
+	flag.CommandLine.DurationVar(&logwait, "logwait", time.Millisecond*10, "duration to wait between writing log lines.")
 
 	flag.Parse()
 
@@ -24,8 +29,48 @@ func main() {
 		cpu()
 	case "mem":
 		mem(megaBytes)
+	case "log":
+		logger(logwait)
 	case "none":
 		none()
+
+	}
+
+}
+
+// logger logs heaps of data
+func logger(logwait time.Duration) {
+	type LogItem struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+		Data string `json:"data"`
+	}
+
+	for {
+		start := time.Now()
+		for i := 0; i < 1000; i++ {
+			name := petname.Generate(1, "")
+			data := petname.Generate(4, " haz ")
+			li := LogItem{
+				Id:   i,
+				Name: name,
+				Data: data,
+			}
+			ll, _ := json.Marshal(li)
+			log.Printf("%s", ll)
+
+			time.Sleep(logwait)
+		}
+
+		duration := time.Since(start)
+
+		li := LogItem{
+			Id:   1000,
+			Name: "STATUS",
+			Data: fmt.Sprintf("Logged 1000 lines in %f seconds", duration.Seconds()),
+		}
+		ll, _ := json.Marshal(li)
+		log.Printf("%s", ll)
 
 	}
 
