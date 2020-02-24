@@ -5,7 +5,7 @@ const state = {
     hostname : "",
     updated: null,
     statusCode: -1,
-    k8sinfo: {}
+    k8sstats: {}
   }
  
 
@@ -45,7 +45,7 @@ const mutations = {
       state.cGroup = info.cGroup
       state.hostname = info.hostname
       state.httpheaders = info.httpheaders
-      state.k8sinfo = info.k8sinfo
+      state.k8sstats = info.k8sstats
   },
   'SET_STATUS' (state, code) {
     state.statusCode = code

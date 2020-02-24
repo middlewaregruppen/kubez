@@ -115,7 +115,7 @@ export default {
   methods: {
     create: function() {
       axios
-        .post("/kubez/action/k8sload", {
+        .post("/kubez/k8sload", {
           namespaces: this.namespaces,
           deployments: this.deployments,
           pods: this.pods,
@@ -139,14 +139,13 @@ export default {
     profile: "none",
     profiles: [
       { profile: "none", text: "none" },
-      { profile: "cpu", text: "CPU 100%" },
-      { profile: "mem100", text: "100 Mb mem" },
-      { profile: "mem500", text: "500 Mb mem" },
-      { profile: "mem2000", text: "2 Gb mem" }
+      { profile: "cpu", text: "cpu 100%" },
+      { profile: "mem100", text: "mem 100 Mb" },
+      { profile: "mem2000", text: "mem 2000 Mb" }
     ]
   }),
   computed: mapState({
-    k8s: state => state.info.k8sinfo
+    k8s: state => state.info.k8sstats
   })
 };
 </script>

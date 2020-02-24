@@ -33,10 +33,8 @@ frontend:
 
 linux: dep
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/kubez cmd/kubez/main.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/load100cpu cmd/load100cpu/main.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/loadmem2g cmd/loadmem2g/main.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/loadmem100m cmd/loadmem100m/main.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/loadmem500m cmd/loadmem500m/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/loader cmd/loader/main.go
+
 
 docker_build: linux
 	#docker run --rm -v "${PWD}":/go/src/github.com/${GITHUB_USERNAME}/${BINARY}  -w /go/src/github.com/${GITHUB_USERNAME}/${BINARY}  make fmt test
