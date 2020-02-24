@@ -115,7 +115,7 @@ export default {
   methods: {
     create: function() {
       axios
-        .post("/kubez/action/k8sload", {
+        .post("/kubez/k8sload", {
           namespaces: this.namespaces,
           deployments: this.deployments,
           pods: this.pods,
@@ -145,7 +145,7 @@ export default {
     ]
   }),
   computed: mapState({
-    k8s: state => state.info.k8sinfo
+    k8s: state => state.info.k8sstats
   })
 };
 </script>
