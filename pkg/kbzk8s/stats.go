@@ -1,4 +1,6 @@
-package info
+//  Copyright 2020
+
+package kbzk8s
 
 import (
 	"io/ioutil"
@@ -9,7 +11,10 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-type K8SInfo struct {
+// Stats Contains information about the cluster and the namespace that
+// the pod is running in.
+
+type Stats struct {
 	Namespace                      string `json:"namespace"`
 	NumberOfNamespaces             int    `json:"noNamespaces"`
 	NumberOfPods                   int    `json:"noPods"`
@@ -20,8 +25,11 @@ type K8SInfo struct {
 	NumberOfDeploymentsInNamespace int    `json:"noDeploymentsinNs"`
 }
 
-func GetK8SInfo() *K8SInfo {
-	ki := &K8SInfo{}
+// GetStats returns a Stats Struct. Errors are not propegated to the calling function.
+// The reason is that it should not fail if the service account on the pod dosen't have
+// sufficent rigth to retrive the information from the API server.
+func GetStats() *Stats {
+	ki := &Stats{}
 
 	nsb, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 	ki.Namespace = string(nsb)
@@ -81,7 +89,6 @@ func GetK8SInfo() *K8SInfo {
 	}
 
 	// Deployments in Cluster
-
 	dlist, err := clientset.AppsV1().Deployments("").List(metav1.ListOptions{})
 
 	// Ignore errors.
@@ -91,7 +98,6 @@ func GetK8SInfo() *K8SInfo {
 	}
 
 	// Deployments in NS
-
 	dlist, err = clientset.AppsV1().Deployments(ki.Namespace).List(metav1.ListOptions{})
 
 	// Ignore errors.

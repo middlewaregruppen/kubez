@@ -139,10 +139,9 @@ export default {
     profile: "none",
     profiles: [
       { profile: "none", text: "none" },
-      { profile: "cpu", text: "CPU 100%" },
-      { profile: "mem100", text: "100 Mb mem" },
-      { profile: "mem500", text: "500 Mb mem" },
-      { profile: "mem2000", text: "2 Gb mem" }
+      { profile: "cpu", text: "cpu 100%" },
+      { profile: "mem100", text: "mem 100 Mb" },
+      { profile: "mem2000", text: "mem 2000 Mb" }
     ]
   }),
   computed: mapState({

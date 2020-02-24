@@ -99,7 +99,7 @@ export default {
       return this.$store.state.info.hostname
     },
       namespace (){
-        return this.$store.state.info.k8sinfo.namespace
+        return this.$store.state.info.k8sstat.namespace
       }
       ,
 

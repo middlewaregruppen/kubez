@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+
+	"github.com/middlewaregruppen/kubez/pkg/kbzk8s"
 )
 
 type Info struct {
 	CGroup   *CGroup             `json:"cGroup"`
 	Headers  map[string][]string `json:"httpheaders"`
 	Hostname string              `json:"hostname"`
-	K8SInfo  *K8SInfo            `json:"k8sinfo"`
+	K8SStats *kbzk8s.Stats       `json:"k8sstats"`
 }
 
 //HandleGetInfo - get information
@@ -19,28 +21,13 @@ func HandleGetInfo(w http.ResponseWriter, r *http.Request) {
 	cg := GetCgroup()
 	httpheaders := GetHTTPHeaders(r)
 
-	ki := GetK8SInfo()
+	ki := kbzk8s.GetStats()
 
 	rt := &Info{
-		CGroup:  cg,
-		Headers: httpheaders,
-		K8SInfo: ki,
+		CGroup:   cg,
+		Headers:  httpheaders,
+		K8SStats: ki,
 	}
-
-	/*
-		var v interface{}
-		json.Unmarshal(headers, &v)
-		out := v.([]interface{})
-
-		for k, v := range out {
-			switch v := v.(type) {
-			case string:
-				log.Println(k, v, "(string)")
-			default:
-				log.Println(k, v, "(unknown)")
-			}
-		}
-	*/
 	hn, _ := os.Hostname()
 	rt.Hostname = hn
 

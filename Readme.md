@@ -43,7 +43,7 @@ make docker_build
  
  or 
 
-`docker run -p3000:3000 -m50m --cpus=0.5 docker.pkg.github.com/middlewaregruppen/kubez:latest`
+`docker run -p3000:3000 -m50m --cpus=0.5 middlewaregruppen/kubez:latest`
 
 #### Start vue 
 
