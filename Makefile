@@ -1,6 +1,6 @@
 BINARY=kubez
 GOARCH=amd64
-VERSION=1.0.0-a
+VERSION=dev
 COMMIT=$(shell git rev-parse HEAD)
 BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 GOVERSION=$(shell go version | awk -F\go '{print $$3}' | awk '{print $$1}')
@@ -51,6 +51,5 @@ build: linux frontend docker
 
 clean:
 	-rm -rf ${BUILD_DIR}/out/
-	~/go/bin/packr clean
 
 .PHONY: linux test fmt clean
