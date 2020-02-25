@@ -5,7 +5,8 @@ const state = {
     hostname : "",
     updated: null,
     statusCode: -1,
-    k8sstats: {}
+    k8sstats: {},
+    requestInfo: {}
   }
  
 
@@ -27,6 +28,10 @@ const getters = {
 
   headers: (state) => {
     return state.info.Headers
+  },
+
+  requestInfo: (state) => {
+    return state.info.requestInfo
   }
 }
 
@@ -46,6 +51,7 @@ const mutations = {
       state.hostname = info.hostname
       state.httpheaders = info.httpheaders
       state.k8sstats = info.k8sstats
+      state.requestInfo = info.requestInfo
   },
   'SET_STATUS' (state, code) {
     state.statusCode = code
