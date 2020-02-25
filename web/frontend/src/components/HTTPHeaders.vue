@@ -32,9 +32,7 @@ export default {
   name: "HTTPHeaders",
 
   computed: {
-    birds() {
-      return "Fly away to Thailand "
-    },
+    
     httpheaders() {
       return this.$store.state.info.httpheaders;
     },
