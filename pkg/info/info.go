@@ -9,10 +9,11 @@ import (
 )
 
 type Info struct {
-	CGroup   *CGroup             `json:"cGroup"`
-	Headers  map[string][]string `json:"httpheaders"`
-	Hostname string              `json:"hostname"`
-	K8SStats *kbzk8s.Stats       `json:"k8sstats"`
+	CGroup      *CGroup             `json:"cGroup"`
+	Headers     map[string][]string `json:"httpheaders"`
+	Hostname    string              `json:"hostname"`
+	K8SStats    *kbzk8s.Stats       `json:"k8sstats"`
+	RequestInfo RequestInfo         `json:"requestInfo"`
 }
 
 //HandleGetInfo - get information
@@ -22,11 +23,13 @@ func HandleGetInfo(w http.ResponseWriter, r *http.Request) {
 	httpheaders := GetHTTPHeaders(r)
 
 	ki := kbzk8s.GetStats()
+	ri := GetHttpRequest(r)
 
 	rt := &Info{
-		CGroup:   cg,
-		Headers:  httpheaders,
-		K8SStats: ki,
+		CGroup:      cg,
+		Headers:     httpheaders,
+		K8SStats:    ki,
+		RequestInfo: ri,
 	}
 	hn, _ := os.Hostname()
 	rt.Hostname = hn

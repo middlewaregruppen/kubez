@@ -2,11 +2,17 @@
   <v-container fluid>
     <v-list-item three-line>
       <v-list-item-content>
-        <div class="headline mb-4">HTTP HEADERS FROM INCOMING REQUESTS</div>
+        <div class="headline mb-4">HTTP Request information</div>
+
         <div class="body-2 pl-3">
-          <table>
+
+          Protocol: {{httprequest.proto}}<br/>
+          Major Version: {{httprequest.major}}<br/>
+          Minor Version: {{httprequest.minor}}<br/>
+
+          <table class="mt-2">
             <thead>
-              <tr><th align="left">NAME</th><th align="left">VALUE</th></tr>
+              <tr><th align="left">Header Name</th><th align="left">Header Value</th></tr>
             </thead>
             <tbody>
               <tr v-for="(values,name) in httpheaders" v-bind:key="name">
@@ -26,12 +32,14 @@ export default {
   name: "HTTPHeaders",
 
   computed: {
-    birds() {
-      return "Fly away to Thailand "
-    },
+
+
     httpheaders() {
       return this.$store.state.info.httpheaders;
     },
+    httprequest() {
+      return this.$store.state.info.requestInfo;
+    }
   },
 };
 </script>
