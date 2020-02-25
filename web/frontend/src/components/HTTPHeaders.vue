@@ -10,7 +10,7 @@
           Major Version: {{httprequest.major}}<br/>
           Minor Version: {{httprequest.minor}}<br/>
 
-          <table class="pt-2">
+          <table class="mt-2">
             <thead>
               <tr><th align="left">Header Name</th><th align="left">Header Value</th></tr>
             </thead>
@@ -32,7 +32,8 @@ export default {
   name: "HTTPHeaders",
 
   computed: {
-    
+
+
     httpheaders() {
       return this.$store.state.info.httpheaders;
     },
