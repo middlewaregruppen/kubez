@@ -15,7 +15,7 @@ type API struct {
 	*Delay
 	*TransmissionRate
 	Name         string      `json:"name"`
-	Port         int64       `json:"port"`
+	Port         int32       `json:"port"`
 	Path         string      `json:"path"`
 	CORS         bool        `json:"cors"`
 	LogToConsole bool        `json:"logToConsole"`
@@ -62,7 +62,9 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if a.TransmissionRate != nil {
-		body = a.TransmissionRate.RequestReader(r)
+		if a.TransmissionRate.RequestRate > 0 {
+			body = a.TransmissionRate.RequestReader(r)
+		}
 	}
 
 	if a.Delay != nil {
@@ -104,13 +106,17 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 	case "echo":
 		b, _ := ioutil.ReadAll(body)
 		response = bytes.NewReader(b)
+	default:
+		response = bytes.NewReader([]byte("Configuration error: Invalid response type defined!"))
 	}
 
 	var bufSize int64
 	bufSize = 512 * 1024 // Default buffert size
 
 	if a.TransmissionRate != nil {
-		response, bufSize = a.TransmissionRate.ResponseReader(response)
+		if a.TransmissionRate.ResponseRate > 0 {
+			response, bufSize = a.TransmissionRate.ResponseReader(response)
+		}
 	}
 
 	buf := make([]byte, bufSize)

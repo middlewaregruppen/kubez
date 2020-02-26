@@ -10,6 +10,7 @@
         Create New Api Endpoint
         <v-form class="mt-4" ref="form">
           <v-text-field v-model="ep.name" label="Unique name for API Endpoint" required></v-text-field>
+          <v-text-field v-model="ep.port" label="Listen Port" required></v-text-field>
         </v-form>
       </v-card-text>
       <v-divider></v-divider>
@@ -34,15 +35,16 @@ export default {
   data: () => ({
     dialog: false,
     ep: {
-      name: ""
+      name: "",
+      port: 1337
     }
   }),
 
   methods: {
     create: function() {
-      var name = this.ep.name;
       var data = {
-        name: name
+        name: this.ep.name,
+        port: this.ep.port
       };
       axios.post(this.href, data).then(this.$emit("endpointCreated"));
       this.dialog = false;

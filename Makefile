@@ -34,6 +34,7 @@ frontend:
 linux: dep
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/kubez cmd/kubez/main.go
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/loader cmd/loader/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o out/api-endpoint cmd/api-endpoint/main.go
 
 
 docker_build: linux

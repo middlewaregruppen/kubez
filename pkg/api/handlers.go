@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -13,11 +12,11 @@ import (
 
 func (ac *APIController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	// Get the port
+	/*// Get the port
 	sp := strings.Split(r.Host, ":")
-	var port int64
+	//var port int32
 	if len(sp) == 2 {
-		port, _ = strconv.ParseInt(sp[1], 10, 64)
+		port, _ = strconv.ParseInt(sp[1], 10, 32)
 	}
 	to := ac.apisServing(r.URL.RequestURI(), port)
 
@@ -29,7 +28,7 @@ func (ac *APIController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Let the first one handle the request.
 	to[0].HandleAPIRequest(w, r)
-
+	*/
 }
 
 func (ac *APIController) HandleGetEndpointList(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +48,7 @@ func (ac *APIController) HandleGetEndpointList(w http.ResponseWriter, r *http.Re
 func (ac *APIController) HandleGetEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	ep := ac.GetEndpoint(vars["endpoint"])
+	ep, _ := ac.GetEndpoint(vars["endpoint"]) // Fixme
 	if ep == nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -92,7 +91,7 @@ func (ac *APIController) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Req
 	ac.HandleGetEndpoint(w, r)
 }
 
-func (ac *APIController) apisServing(path string, port int64) []*API {
+func (ac *APIController) apisServing(path string, port int32) []*API {
 	var res []*API
 	//Find API
 	for _, api := range ac.APICollection {
