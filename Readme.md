@@ -5,7 +5,7 @@ Dr. Kubez is a tool to test, diagnose and load k8s clusters.
 To run it in your cluster
 
 ``` 
-kubectl apply -f kubez.yaml
+kubectl apply -f https://raw.githubusercontent.com/middlewaregruppen/kubez/master/install.yaml
 ```
 
 ##  Things you can do with it today
