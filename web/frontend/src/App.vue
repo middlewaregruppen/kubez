@@ -93,19 +93,18 @@ export default {
   props: {
     source: String
   },
-
   computed: {
        hostname () {
       return this.$store.state.info.hostname
     },
-      namespace (){
-        return this.$store.state.info.k8sstats.namespace
-      }
-      ,
-
+    namespace (){
+      return this.$store.state.info.k8sstats.namespace
+    },
     connectionStatus: function() {
        var c = {
-        loading: false
+        loading: false,
+        colour: '',
+        code: '',
       };
       switch (this.$store.getters.status) {
         case 200:
@@ -114,22 +113,18 @@ export default {
           break
         case -1:
           c.code = ""
-          return 
-          
-
+          break
         default:
           c.colour = "red"
           c.code = this.$store.getters.status
+          break
       }
       return c;
     }
   },
-
   data: () => ({
     drawer: null,
-
   }),
-
   created() {
     this.$vuetify.theme.dark = true;
   }
