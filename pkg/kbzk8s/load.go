@@ -126,7 +126,7 @@ func Load(load *K8SLoad) error {
 
 		dpNmae := fmt.Sprintf("kl-%s", petname.Generate(3, "-"))
 
-		clientset.AppsV1().Deployments(load.Namespace).Create(&appv1.Deployment{
+		_, err := clientset.AppsV1().Deployments(load.Namespace).Create(&appv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: dpNmae,
 			},
@@ -158,7 +158,9 @@ func Load(load *K8SLoad) error {
 				},
 			},
 		})
-
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -1,5 +1,11 @@
 <template>
   <v-app id="inspire">
+    <v-snackbar v-model="snack.show" :color="snack.color" :timeout="0">
+      {{ snack.message }}
+      <v-btn text icon  @click="hideSnack">
+         <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-snackbar>
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
         <!--v-list-item link @click="$router.push('/')">
@@ -87,22 +93,25 @@
 </template>
 
 <script>
-//import { mapState } from 'vuex'
-
 export default {
   props: {
     source: String
   },
-
+  methods: {
+    hideSnack() {
+      this.$store.dispatch('clearSnack')
+    }
+  },
   computed: {
-       hostname () {
+    hostname () {
       return this.$store.state.info.hostname
     },
-      namespace (){
-        return this.$store.state.info.k8sstats.namespace
-      }
-      ,
-
+    namespace (){
+      return this.$store.state.info.k8sstats.namespace
+    },
+    snack() {
+      return this.$store.state.info.snack
+    },
     connectionStatus: function() {
        var c = {
         loading: false
@@ -114,22 +123,17 @@ export default {
           break
         case -1:
           c.code = ""
-          return 
-          
-
+          return
         default:
           c.colour = "red"
           c.code = this.$store.getters.status
       }
       return c;
-    }
+    },
   },
-
   data: () => ({
     drawer: null,
-
   }),
-
   created() {
     this.$vuetify.theme.dark = true;
   }

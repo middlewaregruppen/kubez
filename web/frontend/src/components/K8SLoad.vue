@@ -78,8 +78,7 @@
                 :items="profiles"
                 item-text="text"
                 item-value="profile"
-                label="Load"
-                
+                label="Load"   
               ></v-select>
             </v-col>
           </v-row>
@@ -110,7 +109,6 @@ export default {
   components: {
     Instructions
   },
-
   methods: {
     create: function() {
       axios
@@ -124,7 +122,12 @@ export default {
           limMem: this.limMem,
           profile: this.profile
         })
-        .then(res => (this.cpu = res.data));
+        .then(res => {
+          this.cpu = res.data
+        })
+        .catch(error => {
+          this.$store.dispatch('setSnack', { message: error.response.data, color: 'error'})
+        });
     }
   },
   data: () => ({
