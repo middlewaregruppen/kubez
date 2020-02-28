@@ -132,6 +132,7 @@ export default {
   },
   data: () => ({
     namespaces: "",
+    namespace: "",
     deployments: "1",
     pods: "1",
     reqCPU: "0",

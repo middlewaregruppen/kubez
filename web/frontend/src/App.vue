@@ -114,7 +114,9 @@ export default {
     },
     connectionStatus: function() {
        var c = {
-        loading: false
+        loading: false,
+        colour: '',
+        code: '',
       };
       switch (this.$store.getters.status) {
         case 200:
@@ -124,9 +126,11 @@ export default {
         case -1:
           c.code = ""
           return
+
         default:
           c.colour = "red"
           c.code = this.$store.getters.status
+          break
       }
       return c;
     },
