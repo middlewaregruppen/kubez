@@ -7,6 +7,7 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - services
   - pods
   - pods/log
   - pods/status
@@ -18,6 +19,7 @@ rules:
   - replicasets/status
   - namespaces
   - namespaces/status
+  - configmaps
   verbs:
   - get
   - list
@@ -39,8 +41,11 @@ rules:
   - ""
   resources:
   - pods
+  - configmaps
+  - services
   verbs:
   - create
+  - update
 - apiGroups:
   - "apps"
   resources:
@@ -48,6 +53,8 @@ rules:
   - replicasets
   verbs:
   - create
+  - list 
+  - get 
 - apiGroups:
   - extensions
   resources:

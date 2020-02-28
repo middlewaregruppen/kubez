@@ -3,50 +3,66 @@ package api
 import (
 	"fmt"
 	"log"
-	"net/http"
 )
 
 type APIController struct {
-	APICollection []*API `json:"apis"`
-	servers       []*http.Server
 }
 
-func (ac *APIController) RegisterAPI(api *API) {
-
-}
-
-func (ac *APIController) GetEndpoint(name string) (*API, error) {
-	ns, err := thisNamespace()
-	if err != nil {
-		return nil, err
-	}
-	return getAPIConfig(ns, name)
-}
-
+// CreateEndpoint creates an new APIEdnpoint
 func (ac *APIController) CreateEndpoint(a *API) error {
 
-	ns, err := thisNamespace()
+	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
+
+	err := upsertConfigMap(a.Namespace, deploymentName, a)
+
 	if err != nil {
 		return err
 	}
-	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
-	err = upsertConfigMap(ns, deploymentName, a)
-	log.Print(err)
-	err = deployAPIEndpoint(ns, deploymentName, a)
-	log.Print(err)
+	err = createAPIEndpointDeployment(a.Namespace, deploymentName, a)
+	if err != nil {
+		return err
+	}
+
+	err = createAPIEndpointService(a.Namespace, deploymentName, a)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (ac APIController) GetEndpointList() []*API {
-	ns, _ := thisNamespace()
-	apis, _ := getAPIList(ns)
-	return apis
+// GetEndpointList returns a list of all Endpoints.
+func (ac APIController) GetEndpointList() ([]*API, error) {
+
+	dlst, err := getAPIEndpointDeployments()
+	if err != nil {
+		return nil, err
+	}
+
+	var apis []*API
+
+	// Iterate though deployments.
+	for _, d := range dlst {
+
+		//  Get the corresponding config map
+		api, err := getAPIConfig(d.Namespace, d.Labels["kubez-name"])
+		if err != nil {
+			log.Printf("Unable to get apiconfig: %s", err)
+			continue
+		}
+		api.Namespace = d.Namespace
+		api.Status.RunningPods = d.Status.ReadyReplicas
+
+		apis = append(apis, api)
+
+	}
+	return apis, nil
+
 }
 
+// UpdateEndpoint updates the endpoint
 func (ac *APIController) UpdateEndpoint(a *API) error {
-	ns, _ := thisNamespace()
 	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
 
-	return upsertConfigMap(ns, deploymentName, a)
+	return upsertConfigMap(a.Namespace, deploymentName, a)
 }

@@ -1,14 +1,14 @@
 
 const state = {
-    cGroup: {},
-    httpheaders: {},
-    hostname : "",
-    updated: null,
-    statusCode: -1,
-    k8sstats: {},
-    requestInfo: {}
-  }
- 
+  cGroup: {},
+  httpheaders: {},
+  hostname: "",
+  updated: null,
+  statusCode: -1,
+  k8sstats: {},
+  requestInfo: {}
+}
+
 
 
 
@@ -16,8 +16,8 @@ const state = {
 const getters = {
 
   cgroup: (state) => {
-    
-    return state.info.cGroup 
+
+    return state.info.cGroup
   },
   status: (state) => {
     return state.statusCode
@@ -36,34 +36,34 @@ const getters = {
 }
 
 
-  // actions
+// actions
 const actions = {
 
 }
 
 // mutations
 const mutations = {
- 
-  'SET_INFO' (state, info) {
+
+  'SET_INFO'(state, info) {
     state.updated = Date.now()
 
-      state.cGroup = info.cGroup
-      state.hostname = info.hostname
-      state.httpheaders = info.httpheaders
-      state.k8sstats = info.k8sstats
-      state.requestInfo = info.requestInfo
+    state.cGroup = info.cGroup
+    state.hostname = info.hostname
+    state.httpheaders = info.httpheaders
+    state.k8sstats = info.k8sstats
+    state.requestInfo = info.requestInfo
   },
-  'SET_STATUS' (state, code) {
+  'SET_STATUS'(state, code) {
     state.statusCode = code
   }
 
 
-  
+
 }
 
 export default {
-    state,
-    getters,
-    actions,
-    mutations
-  }
+  state,
+  getters,
+  actions,
+  mutations
+}

@@ -27,7 +27,7 @@ func main() {
 	ac := &api.APIController{}
 	r.HandleFunc("/kubez/apicc/", ac.HandleGetEndpointList).Methods("GET")
 	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleUpdateEndpoint).Methods("PUT")
-	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleGetEndpoint).Methods("GET")
+	//r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleGetEndpoint).Methods("GET")
 	r.HandleFunc("/kubez/apicc/", ac.HandleCreateEndpoint).Methods("POST")
 
 	// Connection Checker

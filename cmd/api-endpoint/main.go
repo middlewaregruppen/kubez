@@ -52,6 +52,6 @@ func loadAPIConfig(config string) error {
 func updateAPIConfig(config string) {
 	for {
 		loadAPIConfig(config)
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 2)
 	}
 }
