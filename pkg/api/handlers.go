@@ -2,42 +2,18 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
-	"strconv"
-	"strings"
-
-	"github.com/gorilla/mux"
 )
 
-func (ac *APIController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	// Get the port
-	sp := strings.Split(r.Host, ":")
-	var port int64
-	if len(sp) == 2 {
-		port, _ = strconv.ParseInt(sp[1], 10, 64)
-	}
-	to := ac.apisServing(r.URL.RequestURI(), port)
-
-	if len(to) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Api is not registered"))
-		return
-	}
-
-	// Let the first one handle the request.
-	to[0].HandleAPIRequest(w, r)
-
-}
-
+// HandleGetEndpointList web handler for retriving an list of all available Endpoints
 func (ac *APIController) HandleGetEndpointList(w http.ResponseWriter, r *http.Request) {
-	eps := ac.GetEndpointList()
+	eps, err := ac.GetEndpointList()
 
-	// Set self
-	for _, e := range eps {
-		e.Self = fmt.Sprintf("%s/%s", strings.TrimSuffix(r.RequestURI, "/"), e.Name)
+	if err != nil {
+		log.Printf("Error getting APIEndpointlist %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	j, _ := json.Marshal(eps)
@@ -46,20 +22,7 @@ func (ac *APIController) HandleGetEndpointList(w http.ResponseWriter, r *http.Re
 	w.Write(j)
 }
 
-func (ac *APIController) HandleGetEndpoint(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	ep := ac.GetEndpoint(vars["endpoint"])
-	if ep == nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	j, _ := json.Marshal(ep)
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(j)
-}
-
+// HandleCreateEndpoint web handler for creating an endpoint
 func (ac *APIController) HandleCreateEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := ioutil.ReadAll(r.Body)
@@ -72,9 +35,16 @@ func (ac *APIController) HandleCreateEndpoint(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	ac.CreateEndpoint(a)
+	err = ac.CreateEndpoint(a)
+	if err != nil {
+		log.Printf("Error creating API Endpoint: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
 }
 
+//HandleUpdateEndpoint webhandler for updating an Endpoint
 func (ac *APIController) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := ioutil.ReadAll(r.Body)
@@ -88,17 +58,4 @@ func (ac *APIController) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Req
 	}
 	ac.UpdateEndpoint(a)
 
-	// Write out the saved
-	ac.HandleGetEndpoint(w, r)
-}
-
-func (ac *APIController) apisServing(path string, port int64) []*API {
-	var res []*API
-	//Find API
-	for _, api := range ac.APICollection {
-		if api.Path == path && api.Port == port {
-			res = append(res, api)
-		}
-	}
-	return res
 }

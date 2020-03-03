@@ -1,4 +1,5 @@
 const state = {
+
     cGroup: {},
     httpheaders: {},
     hostname : "",
@@ -12,11 +13,13 @@ const state = {
       color: 'success'
     }
   }
- 
+
 // getters
 const getters = {
   cgroup: (state) => {
+
     return state.info.cGroup 
+
   },
   status: (state) => {
     return state.statusCode
@@ -32,6 +35,7 @@ const getters = {
   }
 }
 
+
 // actions
 const actions = {
   setSnack({ commit }, snack) {
@@ -44,6 +48,7 @@ const actions = {
 
 // mutations
 const mutations = {
+
   'SET_INFO' (state, info) {
     state.updated = Date.now()
     state.cGroup = info.cGroup
@@ -52,7 +57,7 @@ const mutations = {
     state.k8sstats = info.k8sstats
     state.requestInfo = info.requestInfo
   },
-  'SET_STATUS' (state, code) {
+  'SET_STATUS'(state, code) {
     state.statusCode = code
   },
   'SET_SNACK' (state, snack) {

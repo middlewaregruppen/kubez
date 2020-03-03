@@ -1,71 +1,68 @@
 package api
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
+	"log"
 )
 
 type APIController struct {
-	APICollection []*API `json:"apis"`
-	servers       []*http.Server
 }
 
-func (ac *APIController) RegisterAPI(api *API) {
-	ac.CreateAPIServer(api.Port)
-	ac.APICollection = append(ac.APICollection, api)
-}
-
-func (ac *APIController) GetEndpoint(name string) *API {
-	//Find API
-	for _, api := range ac.APICollection {
-		if api.Name == name {
-			return api
-		}
-	}
-	return nil
-}
-
-func (ac *APIController) CreateAPIServer(port int64) {
-	addr := fmt.Sprintf(":%d", port)
-	for _, s := range ac.servers {
-		// Already Exists
-		if s.Addr == addr {
-			return
-		}
-	}
-	s := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: ac,
-	}
-	go s.ListenAndServe()
-}
-
+// CreateEndpoint creates an new APIEdnpoint
 func (ac *APIController) CreateEndpoint(a *API) error {
-	//Find API
-	exists := ac.GetEndpoint(a.Name)
-	if exists != nil {
-		return errors.New("Endpoint exists")
+
+	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
+
+	err := upsertConfigMap(a.Namespace, deploymentName, a)
+
+	if err != nil {
+		return err
 	}
-	ac.APICollection = append(ac.APICollection, a)
+	err = createAPIEndpointDeployment(a.Namespace, deploymentName, a)
+	if err != nil {
+		return err
+	}
+
+	err = createAPIEndpointService(a.Namespace, deploymentName, a)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (ac APIController) GetEndpointList() []*API {
-	return ac.APICollection
-}
+// GetEndpointList returns a list of all Endpoints.
+func (ac APIController) GetEndpointList() ([]*API, error) {
 
-func (ac *APIController) UpdateEndpoint(a *API) error {
-	//Find API
-	for i, api := range ac.APICollection {
-		if api.Name == a.Name {
-			ac.APICollection[i] = a
-			if a.Port != api.Port {
-				ac.CreateAPIServer(a.Port)
-			}
-			return nil
-		}
+	dlst, err := getAPIEndpointDeployments()
+	if err != nil {
+		return nil, err
 	}
 
-	return errors.New("NotFound")
+	var apis []*API
+
+	// Iterate though deployments.
+	for _, d := range dlst {
+
+		//  Get the corresponding config map
+		api, err := getAPIConfig(d.Namespace, d.Labels["kubez-name"])
+		if err != nil {
+			log.Printf("Unable to get apiconfig: %s", err)
+			continue
+		}
+		api.Namespace = d.Namespace
+		api.Status.RunningPods = d.Status.ReadyReplicas
+
+		apis = append(apis, api)
+
+	}
+	return apis, nil
+
+}
+
+// UpdateEndpoint updates the endpoint
+func (ac *APIController) UpdateEndpoint(a *API) error {
+	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
+
+	return upsertConfigMap(a.Namespace, deploymentName, a)
 }

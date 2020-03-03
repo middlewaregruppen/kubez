@@ -4,9 +4,9 @@
       <v-col>
         <v-card>
           <v-row class="mt-2 ml-1">
-            <NewApi href="/kubez/apicc/" @endpointCreated="load()" />
+            <ApiNew href="/kubez/apicc/" @createEndpoint="createEndpoint" />
             <!-- Reload button -->
-            <v-btn small icon dark v-on:click="load()">
+            <v-btn small icon dark v-on:click="updateList()">
               <v-icon>mdi-refresh</v-icon>
             </v-btn>
 
@@ -16,11 +16,30 @@
       </v-col>
     </v-row>
 
-    <v-row v-for="e in endpoints" v-bind:key="e.name">
+    <v-row v-for="e in apis" v-bind:key="e.name">
       <v-col>
         <v-card>
-          <ApiEndpoint :name="e.name" :href="e.self" />
+          <ApiEndpoint
+            :namespace="e.namespace"
+            :name="e.name"
+            :port="e.port"
+            :path="e.path"
+            :mindelay="e.mindelay"
+            :maxdelay="e.maxdelay"
+            :failurerate="e.failurerate"
+            :failurecode="e.failurecode"
+            :requestrate="e.requestrate"
+            :responserate="e.responserate"
+            :responsetype="e.responsetype"
+            :staticcontent="e.staticcontent"
+            :runningpods="e.status.runningpods"
+            :servicetype="e.servicetype"
+            :logtoconsole="e.logtoconsole"
+            :cors="e.cors"
+            @update="updateEndpoint"
+          />
         </v-card>
+        <v-card></v-card>
       </v-col>
     </v-row>
   </div>
@@ -29,24 +48,35 @@
 <script>
 // @ is an alias to /src
 import ApiEndpoint from "@/components/ApiEndpoint.vue";
-import NewApi from "@/components/NewApi.vue";
+import ApiNew from "@/components/ApiNew.vue";
 import Instructions from "@/components/Instructions.vue";
-import axios from "axios";
+//import axios from "axios";
+import { mapState } from "vuex";
 export default {
   name: "Api",
   components: {
     ApiEndpoint,
     Instructions,
-    NewApi
+    ApiNew
   },
 
+  computed: mapState({
+    apis: state => state.apiendpoint.apis
+  }),
   methods: {
-    load: function() {
-      axios.get("/kubez/apicc/").then(res => (this.endpoints = res.data));
+     createEndpoint: function(api) {
+      this.$store.commit("NEW_API", api);
+      this.updateList()
+    },
+    updateEndpoint: function(api) {
+      this.$store.commit("UPDATE_API", api);
+    },
+    updateList: function() {
+      this.$store.dispatch("fetchAPIEndpoints");
     }
   },
   mounted: function() {
-    this.load();
+    this.updateList()
   },
   data: function() {
     return {
