@@ -1,21 +1,22 @@
 <template>
   <v-container fluid>
-    <div class="home">
-
-      <v-row>
-        <v-col>
-          <v-card>
+    <v-row dense>
+      <v-col>
+        <v-card height="100%" flat>
+          <v-card-text>
             <CGroup />
+          </v-card-text>
+          <v-card-actions>
             <LoadTools />
-          </v-card>
-        </v-col>
-        <v-col>
-          <v-card>
-            <K8SLoad />
-          </v-card>
-        </v-col>
-      </v-row>
-    </div>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+      <v-col>
+        <v-card height="100%" flat>
+          <K8SLoad />
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

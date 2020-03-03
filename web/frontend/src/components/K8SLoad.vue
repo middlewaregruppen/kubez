@@ -83,7 +83,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-btn x-small v-on:click="create">Create {{ deployments * pods}} pods</v-btn>
+            <v-btn small v-on:click="create">Create {{ deployments * pods}} pods</v-btn>
           </v-row>
         </div>
       </v-list-item-content>

@@ -1,9 +1,8 @@
 <template>
-  <div class="home">
+  <v-container fluid>
     <v-row no-gutters>
       <v-col>
-        <v-card>
-          <v-row class="mt-2 ml-1">
+        <v-card flat>
             <ApiNew href="/kubez/apicc/" @createEndpoint="createEndpoint" />
             <!-- Reload button -->
             <v-btn small icon dark v-on:click="updateList()">
@@ -11,7 +10,6 @@
             </v-btn>
 
             <Instructions href="api-control-center.md" />
-          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -42,7 +40,7 @@
         <v-card></v-card>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script>

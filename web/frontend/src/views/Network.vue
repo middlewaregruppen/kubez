@@ -2,16 +2,16 @@
   <v-container fluid>
     <v-row>
       <v-col>
-        <v-card>
+        <v-card flat>
           <HTTPHeaders />
         </v-card>
       </v-col>
-            <v-col>
-        <v-card>
+      <v-col>
+        <v-card flat>
           <ConnectionCheck />
         </v-card>
-   
-         <v-card class="mt-3">
+
+        <v-card flat class="mt-3">
           <!--DNSLookup /-->
         </v-card>
       </v-col>
@@ -29,8 +29,8 @@ export default {
   name: "Network",
   components: {
     HTTPHeaders,
-    ConnectionCheck, 
-   // DNSLookup
+    ConnectionCheck
+    // DNSLookup
   }
 };
 </script>

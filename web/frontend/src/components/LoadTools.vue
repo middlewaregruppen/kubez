@@ -1,20 +1,22 @@
 <template>
   <v-container fluid>
-    <v-row no-gutters>
+    <v-row alignt-content="space-around" no-gutters>
+      <v-col cols="2">
+        <v-btn small v-on:click="loadCpu">Load CPU</v-btn>
+        <br />
 
-        <v-card class="pa-2"  tile>
-          <v-btn x-small v-on:click="loadCpu">Load CPU</v-btn> <br/>
-          <!--v-btn x-small v-on:click="loadCpu">For 1 min</v-btn><v-btn x-small v-on:click="loadCpu">For 5 min</v-btn><v-btn x-small v-on:click="loadCpu">Forever</v-btn-->
-          <span class="caption">{{cpu}}</span>
-        </v-card>
-
-        <v-card class="pa-2" tile>
-          <v-btn x-small v-on:click="malloc">Allocate 20 Mb</v-btn><br/> <span class="caption">{{memory}}</span>
-        </v-card>
-        
+        <!--v-btn x-small v-on:click="loadCpu">For 1 min</v-btn><v-btn x-small v-on:click="loadCpu">For 5 min</v-btn><v-btn x-small v-on:click="loadCpu">Forever</v-btn-->
+        <span v-if="cpu != '-'" class="caption">{{ cpu }}</span>
+      </v-col>
+      <v-col cols="2">
+        <v-btn small v-on:click="malloc">Allocate 20 Mb</v-btn>
+        <br />
+        <span v-if="memory != '-'" class="caption">{{ memory }}</span>
+      </v-col>
     </v-row>
   </v-container>
 </template>
+
 <script>
 import axios from "axios";
 
@@ -41,3 +43,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.caption {
+  padding-left: 2px;
+}
+</style>
