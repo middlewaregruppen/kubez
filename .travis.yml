@@ -1,0 +1,52 @@
+sudo: false
+dist: xenial
+language: go
+
+go:
+  - "1.13"
+  
+stages:
+- test
+- build
+- deploy
+
+jobs:
+  include:
+  - stage: test
+    name: "Verify"
+    script: 
+    - make checkfmt
+    - make lint
+    - make vet 
+    - make race
+    - make gocyclo
+    - make ineffassign
+    - make misspell
+    - make coverage
+
+  - name: "Unit Test"
+    script:
+    - make test
+    - make benchmark
+
+  - name: "Compile"
+    stage: build
+    script: 
+    - make
+
+  - stage: deploy
+    name: "GitHub Releases"
+    script:
+    - make
+    deploy:
+      provider: releases
+      api_key: ${GITHUB_API_KEY}
+      file: 
+      - bin/multikube-linux-amd64
+      - bin/multikube-darwin-amd64
+      - bin/multikube-linux-arm
+      - bin/multikube-windows-amd64.exe
+      skip_cleanup: true
+      draft: true
+      on:
+        tags: true
