@@ -8,6 +8,7 @@ import (
 	"github.com/middlewaregruppen/kubez/pkg/kbzk8s"
 )
 
+// Info ...
 type Info struct {
 	CGroup      *CGroup             `json:"cGroup"`
 	Headers     map[string][]string `json:"httpheaders"`
@@ -23,7 +24,7 @@ func HandleGetInfo(w http.ResponseWriter, r *http.Request) {
 	httpheaders := GetHTTPHeaders(r)
 
 	ki := kbzk8s.GetStats()
-	ri := GetHttpRequest(r)
+	ri := GetHTTPRequest(r)
 
 	rt := &Info{
 		CGroup:      cg,

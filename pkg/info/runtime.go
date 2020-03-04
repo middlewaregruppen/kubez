@@ -4,12 +4,14 @@ import (
 	"os"
 )
 
+// Runtime ...
 type Runtime struct {
 	Hostname string              `json:"hostname"`
-	CpuInfo  []map[string]string `json:"cpuInfo"`
+	CPUInfo  []map[string]string `json:"cpuInfo"`
 	MemInfo  map[string]int64    `json:"memInfo"`
 }
 
+// GetRuntime ...
 func GetRuntime() Runtime {
 	i := Runtime{}
 	i.Hostname, _ = os.Hostname()

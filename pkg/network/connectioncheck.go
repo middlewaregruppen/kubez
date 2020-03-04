@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// ConnectionStatus ...
 type ConnectionStatus struct {
 	Successful bool   `json:"success"`
 	Address    string `json:"address"`
@@ -18,6 +19,7 @@ type ConnectionStatus struct {
 	ErrorType  string `json:"errorType"`
 }
 
+// HandleCheckConnection ...
 func HandleCheckConnection(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

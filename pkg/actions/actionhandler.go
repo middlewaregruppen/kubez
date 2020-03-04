@@ -14,12 +14,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Data ...
 var Data [][]byte
 
+// Message ...
 type Message struct {
 	Test string
 }
 
+// ActionHandler ...
 func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
