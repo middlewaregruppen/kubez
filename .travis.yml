@@ -41,11 +41,9 @@ jobs:
     deploy:
       provider: releases
       api_key: ${GITHUB_API_KEY}
+      file_glob: true
       file: 
-      - bin/multikube-linux-amd64
-      - bin/multikube-darwin-amd64
-      - bin/multikube-linux-arm
-      - bin/multikube-windows-amd64.exe
+      - bin/*
       skip_cleanup: true
       draft: true
       on:
