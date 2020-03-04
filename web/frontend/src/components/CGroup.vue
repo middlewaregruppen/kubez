@@ -1,65 +1,67 @@
 <template>
-  <v-container fluid>
-    <v-list-item three-line>
-      <v-list-item-content>
-        <div class="overline mb-4">Linux Kernel</div>
-        <v-list-item-title class="headline mb-1">Control Group</v-list-item-title>
-        <v-list-item-subtitle>Control groups are used to assign quotas to the containers when they are scheduled on the compute node. This information is collected from /sys/fs/cgroup inside the container.</v-list-item-subtitle>
-        <div class="body-2 pl-3">
-          <v-row>
-            <v-col>
-              <v-row>
-                <v-col>CPU</v-col>
-              </v-row>
-              <v-row no-gutters>
-                <v-col>cfs quota</v-col>
-                <v-col>{{cg.cpuQuota | us2ns | prettyTime}}</v-col>
-              </v-row>
-              <v-row no-gutters>
-                <v-col>cfs period</v-col>
-                <v-col>{{cg.cpuPeriod | us2ns | prettyTime}}</v-col>
-              </v-row>
-              <v-row no-gutters>
-                <v-col>nr_throttled</v-col>
-                <v-col>{{cg.cpuNumberThrottled}}</v-col>
-              </v-row>
+  <v-list-item three-line>
+    <v-list-item-content>
+      <div class="overline mb-4">Linux Kernel</div>
+      <v-list-item-title class="headline mb-1">Control Group</v-list-item-title>
+      <v-list-item-subtitle
+        >Control groups are used to assign quotas to the containers when they
+        are scheduled on the compute node. This information is collected from
+        /sys/fs/cgroup inside the container.</v-list-item-subtitle
+      >
+      <div class="body-2 pl-3">
+        <v-row>
+          <v-col>
+            <v-row>
+              <v-col>CPU</v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>cfs quota</v-col>
+              <v-col>{{ cg.cpuQuota | us2ns | prettyTime }}</v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>cfs period</v-col>
+              <v-col>{{ cg.cpuPeriod | us2ns | prettyTime }}</v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>nr_throttled</v-col>
+              <v-col>{{ cg.cpuNumberThrottled }}</v-col>
+            </v-row>
 
-              <v-row no-gutters>
-                <v-col>throttled_time</v-col>
-                <v-col>{{cg.cpuTimeThrottled | prettyTime}}</v-col>
-              </v-row>
+            <v-row no-gutters>
+              <v-col>throttled_time</v-col>
+              <v-col>{{ cg.cpuTimeThrottled | prettyTime }}</v-col>
+            </v-row>
 
-              <v-row no-gutters>
-                <v-col>nr_periods</v-col>
-                <v-col>{{cg.cpuNumberPeriods}}</v-col>
-              </v-row>
-            </v-col>
-            <v-col>
-              <v-row>
-                <v-col>Memory</v-col>
-              </v-row>
-              <v-row no-gutters>
-                <v-col>
-                  limit
-                </v-col>
+            <v-row no-gutters>
+              <v-col>nr_periods</v-col>
+              <v-col>{{ cg.cpuNumberPeriods }}</v-col>
+            </v-row>
+          </v-col>
+          <v-col>
+            <v-row>
+              <v-col>Memory</v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>
+                limit
+              </v-col>
 
-                <v-col>{{ cg.memoryLimit | prettyBytes}}</v-col>
-              </v-row>
-              <v-row no-gutters>
-                <v-col>
-                  usage
-                </v-col>
-                <v-col>{{ cg.memoryUsage | prettyBytes}}</v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </div>
-      </v-list-item-content>
-      <v-list-item-icon>
-        <Instructions href="cgroup.md" />
-      </v-list-item-icon>
-    </v-list-item>
-  </v-container>
+              <v-col>{{ cg.memoryLimit | prettyBytes }}</v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>
+                usage
+              </v-col>
+              <v-col>{{ cg.memoryUsage | prettyBytes }}</v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </div>
+    </v-list-item-content>
+    <v-list-item-icon>
+      <Instructions href="cgroup.md" />
+    </v-list-item-icon>
+  </v-list-item>
 </template>
 <script>
 import { mapState } from "vuex";
