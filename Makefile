@@ -17,6 +17,8 @@ TIMEOUT  = 15
 V = 0
 Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m➜\033[0m")
+GOOS ?= $(shell uname -s | awk '{print tolower($$0)}')
+GOARCH ?= amd64
 
 export GO111MODULE=on
 export CGO_ENABLED=0
@@ -26,11 +28,11 @@ export CGO_ENABLED=0
 .PHONY: all
 all: | $(BIN) ; $(info $(M) building executables) @ ## Build program binary
 	@for f in $(shell ls -d cmd/* | cut -d'/' -f2); do \
-		echo $(BIN)/$${f} ; \
+		echo $(BIN)/$${f}-$(GOOS)-$(GOARCH) $(OS) ; \
 		$(GO) build \
 			-tags release \
 			-ldflags '-X $(MODULE)/cmd.Version=$(VERSION) -X $(MODULE)/cmd.BuildDate=$(DATE)' \
-			-o $(BIN)/$${f} cmd/$${f}/main.go ; \
+			-o $(BIN)/$${f}-$(GOOS)-$(GOARCH) cmd/$${f}/main.go ; \
 	done
 	
 
