@@ -85,7 +85,7 @@ func createAPIEndpointDeployment(namespace, deploymentName string, api *API) err
 							Ports: []v1.ContainerPort{
 								{ContainerPort: api.Port},
 							},
-							Command: []string{"/api-endpoint"},
+							Command: []string{"/api-endpoint-linux-amd64"},
 							Args:    []string{"-config", "/config/api.json"},
 							VolumeMounts: []v1.VolumeMount{
 								{

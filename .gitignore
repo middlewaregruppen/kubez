@@ -1,5 +1,6 @@
 .DS_Store
 .vscode
-out
+out/
+bin/
 web/frontend/dist
 web/frontend/node_modules
