@@ -18,9 +18,9 @@ const getters = {
 // actions
 const actions = {
 
-    fetchPods({ commit }) {
+    fetchPodInfo({ commit }) {
         axios
-            .get("/kubez/kbzk8s/pods")
+            .get("/kubez/kbzk8s/podlist")
             .then(res => res.data)
             .then(pods => {
                 commit ('SET_PODS', pods)
@@ -36,7 +36,7 @@ const actions = {
 const mutations = {
 
     'SET_PODS'(state, pods) {
-        state.pods = pods
+        state.podinfo = pods
     },
 
 }
