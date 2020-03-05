@@ -37,13 +37,17 @@ jobs:
   - stage: deploy
     name: "GitHub Releases"
     script:
-    - make
+    - GOOS=linux make && zip -j kubez-linux-amd64.zip bin/* && make clean
+    - GOOS=darwin make && zip -j kubez-darwin-amd64.zip bin/* && make clean
+    - GOOS=windows make && zip -j kubez-windows-amd64.zip bin/* && make clean
     deploy:
       provider: releases
       api_key: ${GITHUB_API_KEY}
       file_glob: true
       file: 
-      - bin/*
+      - kubez-linux-amd64.zip
+      - kubez-darwin-amd64.zip
+      - kubez-windows-amd64.zip
       skip_cleanup: true
       draft: true
       on:
