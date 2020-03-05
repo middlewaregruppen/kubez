@@ -39,6 +39,9 @@ func main() {
 	// K8s Loader
 	r.HandleFunc("/kubez/k8sload", kbzk8s.HandleLoad).Methods("POST")
 
+	// PodInfoList
+	r.HandleFunc("/kubez/kbzk8s/podlist", kbzk8s.HandleGetPodList).Methods("GET")
+
 	dir := http.FileServer(http.Dir("web/frontend/dist"))
 	r.PathPrefix("/").Handler(dir)
 

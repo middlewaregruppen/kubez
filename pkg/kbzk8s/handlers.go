@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
-// HandleLoad ...
+// HandleLoad is a webhandler to create load.
 func HandleLoad(rw http.ResponseWriter, r *http.Request) {
 
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
-		log.Printf("%s", err)
+		msg := fmt.Sprintf("%s", err)
+		rw.Write([]byte(msg))
 		return
 	}
 
@@ -33,4 +33,20 @@ func HandleLoad(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte(es))
 		return
 	}
+}
+
+// HandleGetPodList is a webhandler for getting all pods in cluster.
+func HandleGetPodList(rw http.ResponseWriter, r *http.Request) {
+
+	pil, err := GetPodInfoList()
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		es := fmt.Sprintf("%s", err)
+		rw.Write([]byte(es))
+		return
+	}
+
+	b, err := json.Marshal(pil)
+	rw.Header().Add("Content-Type", "application/json")
+	rw.Write(b)
 }
