@@ -5,11 +5,12 @@ import (
 	"log"
 )
 
-type APIController struct {
+// Controller ...
+type Controller struct {
 }
 
 // CreateEndpoint creates an new APIEdnpoint
-func (ac *APIController) CreateEndpoint(a *API) error {
+func (ac *Controller) CreateEndpoint(a *API) error {
 
 	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
 
@@ -32,7 +33,7 @@ func (ac *APIController) CreateEndpoint(a *API) error {
 }
 
 // GetEndpointList returns a list of all Endpoints.
-func (ac APIController) GetEndpointList() ([]*API, error) {
+func (ac *Controller) GetEndpointList() ([]*API, error) {
 
 	dlst, err := getAPIEndpointDeployments()
 	if err != nil {
@@ -61,7 +62,7 @@ func (ac APIController) GetEndpointList() ([]*API, error) {
 }
 
 // UpdateEndpoint updates the endpoint
-func (ac *APIController) UpdateEndpoint(a *API) error {
+func (ac *Controller) UpdateEndpoint(a *API) error {
 	deploymentName := fmt.Sprintf("kubezapi-%s", a.Name)
 
 	return upsertConfigMap(a.Namespace, deploymentName, a)

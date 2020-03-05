@@ -4,13 +4,15 @@ import (
 	"net/http"
 )
 
+// RequestInfo ...
 type RequestInfo struct {
 	Proto string `json:"proto"`
 	Major int    `json:"major"`
 	Minor int    `json:"minor"`
 }
 
-func GetHttpRequest(r *http.Request) RequestInfo {
+// GetHTTPRequest ...
+func GetHTTPRequest(r *http.Request) RequestInfo {
 	ri := RequestInfo{
 		Proto: r.Proto,
 		Major: r.ProtoMajor,
@@ -20,7 +22,7 @@ func GetHttpRequest(r *http.Request) RequestInfo {
 
 }
 
-//GetHTTPHeaders - get http headers
+// GetHTTPHeaders gets http headers
 func GetHTTPHeaders(r *http.Request) http.Header {
 	/*
 		var out []string

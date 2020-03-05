@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/middlewaregruppen/kubez.svg?branch=master)](https://travis-ci.org/middlewaregruppen/kubez) [![Go Report Card](https://goreportcard.com/badge/github.com/middlewaregruppen/kubez)](https://goreportcard.com/report/github.com/middlewaregruppen/kubez)
+
 # Welcome to Dr. Kubez
 
 Dr. Kubez is a tool to test, diagnose and load k8s clusters.
@@ -23,13 +25,9 @@ kubectl apply -f https://raw.githubusercontent.com/middlewaregruppen/kubez/maste
 ### Test:
 - Create services that mock endpoints and introduces errors and delays in them.
 
-
 ## Thing we are about to create:
 - Hijack k8s services and introduce random errors and delays to them. 
 - DNS Lookup from inside the cluster.
-
-
-
 
 ## Building dr. kubez
 ```

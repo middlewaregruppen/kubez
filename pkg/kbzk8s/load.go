@@ -39,6 +39,7 @@ import (
 //       - "log9ms" write a log line and waits 9ms (~100 lines/s)
 //       - "log3ms" write a log line and waits 3ms (~300 lines/s)
 
+// K8SLoad ...
 type K8SLoad struct {
 	Namespace       string `json:"namespace"`
 	Deployments     int    `json:"deployments,string"`

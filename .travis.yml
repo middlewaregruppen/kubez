@@ -1,0 +1,54 @@
+sudo: false
+dist: xenial
+language: go
+
+go:
+  - "1.13"
+  
+stages:
+- test
+- build
+- deploy
+
+jobs:
+  include:
+  - stage: test
+    name: "Verify"
+    script: 
+    - make checkfmt
+    - make lint
+    - make vet 
+    - make race
+    - make gocyclo
+    - make ineffassign
+    - make misspell
+    - make coverage
+
+  - name: "Unit Test"
+    script:
+    - make test
+    - make benchmark
+
+  - name: "Compile"
+    stage: build
+    script: 
+    - make
+
+  - stage: deploy
+    name: "GitHub Releases"
+    script:
+    - GOOS=linux make && zip -j kubez-linux-amd64.zip bin/* && make clean
+    - GOOS=darwin make && zip -j kubez-darwin-amd64.zip bin/* && make clean
+    - GOOS=windows make && zip -j kubez-windows-amd64.zip bin/* && make clean
+    deploy:
+      provider: releases
+      api_key: ${GITHUB_API_KEY}
+      file_glob: true
+      file: 
+      - kubez-linux-amd64.zip
+      - kubez-darwin-amd64.zip
+      - kubez-windows-amd64.zip
+      skip_cleanup: true
+      draft: true
+      on:
+        tags: true

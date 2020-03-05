@@ -14,6 +14,7 @@ import (
 // Stats Contains information about the cluster and the namespace that
 // the pod is running in.
 
+// Stats ...
 type Stats struct {
 	ClusterNameSpaces              []string `json:"namespacesInCluster"`
 	Namespace                      string   `json:"namespace"`

@@ -41,7 +41,7 @@ func main() {
 // logger logs heaps of data
 func logger(logwait time.Duration) {
 	type LogItem struct {
-		Id   int    `json:"id"`
+		ID   int    `json:"id"`
 		Name string `json:"name"`
 		Data string `json:"data"`
 	}
@@ -52,7 +52,7 @@ func logger(logwait time.Duration) {
 			name := petname.Generate(1, "")
 			data := petname.Generate(4, " haz ")
 			li := LogItem{
-				Id:   i,
+				ID:   i,
 				Name: name,
 				Data: data,
 			}
@@ -65,7 +65,7 @@ func logger(logwait time.Duration) {
 		duration := time.Since(start)
 
 		li := LogItem{
-			Id:   1000,
+			ID:   1000,
 			Name: "STATUS",
 			Data: fmt.Sprintf("Logged 1000 lines in %f seconds", duration.Seconds()),
 		}

@@ -24,7 +24,7 @@ func main() {
 	r.HandleFunc("/kubez/info", info.HandleGetInfo).Methods("GET")
 	r.HandleFunc("/kubez/action/{action}", actions.ActionHandler).Methods("POST")
 
-	ac := &api.APIController{}
+	ac := &api.Controller{}
 	r.HandleFunc("/kubez/apicc/", ac.HandleGetEndpointList).Methods("GET")
 	r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleUpdateEndpoint).Methods("PUT")
 	//r.HandleFunc("/kubez/apicc/{endpoint}", ac.HandleGetEndpoint).Methods("GET")

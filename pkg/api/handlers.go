@@ -8,7 +8,7 @@ import (
 )
 
 // HandleGetEndpointList web handler for retriving an list of all available Endpoints
-func (ac *APIController) HandleGetEndpointList(w http.ResponseWriter, r *http.Request) {
+func (ac *Controller) HandleGetEndpointList(w http.ResponseWriter, r *http.Request) {
 	eps, err := ac.GetEndpointList()
 
 	if err != nil {
@@ -23,7 +23,7 @@ func (ac *APIController) HandleGetEndpointList(w http.ResponseWriter, r *http.Re
 }
 
 // HandleCreateEndpoint web handler for creating an endpoint
-func (ac *APIController) HandleCreateEndpoint(w http.ResponseWriter, r *http.Request) {
+func (ac *Controller) HandleCreateEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := ioutil.ReadAll(r.Body)
 
@@ -45,7 +45,7 @@ func (ac *APIController) HandleCreateEndpoint(w http.ResponseWriter, r *http.Req
 }
 
 //HandleUpdateEndpoint webhandler for updating an Endpoint
-func (ac *APIController) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Request) {
+func (ac *Controller) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := ioutil.ReadAll(r.Body)
 

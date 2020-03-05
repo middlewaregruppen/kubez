@@ -36,6 +36,9 @@ func getNamespaces() ([]string, error) {
 	}
 
 	nss, err := cs.CoreV1().Namespaces().List(metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
 
 	var res []string
 	for _, ns := range nss.Items {

@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// HandleLoad ...
 func HandleLoad(rw http.ResponseWriter, r *http.Request) {
 
 	b, err := ioutil.ReadAll(r.Body)

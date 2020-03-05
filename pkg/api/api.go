@@ -49,8 +49,8 @@ type Status struct {
 
 // Response configures which type of response that shall be sent back to the client.
 
-// ApiLog describes the JSON format of the logs sent to std out
-type ApiLog struct {
+// Log describes the JSON format of the logs sent to std out
+type Log struct {
 	APIName     string `json:"apiName"`
 	ResposeType string `json:"respType"`
 	Protocol    string `json:"proto"`
@@ -61,6 +61,7 @@ type ApiLog struct {
 	RemoteAddr  string `json:"remoteAddr"`
 }
 
+// RequestReader ...
 func (a *API) RequestReader(r *http.Request) io.Reader {
 	if a.RequestRate == 0 {
 		return r.Body
@@ -71,6 +72,7 @@ func (a *API) RequestReader(r *http.Request) io.Reader {
 
 }
 
+// ResponseReader ...
 func (a *API) ResponseReader(response io.Reader) (reader io.Reader, buffSize int64) {
 
 	bucket := ratelimit.NewBucketWithRate(float64(a.ResponseRate), a.ResponseRate)
@@ -78,6 +80,7 @@ func (a *API) ResponseReader(response io.Reader) (reader io.Reader, buffSize int
 
 }
 
+// DelayRequest ...
 func (a *API) DelayRequest() {
 	// Calulate how long time to delay.
 	delay := 0
@@ -101,7 +104,7 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 
 	var body io.Reader
 
-	lm := &ApiLog{
+	lm := &Log{
 		APIName:     a.Name,
 		ResposeType: a.ResponseType,
 		Protocol:    r.Proto,
@@ -180,7 +183,7 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 	a.logRequest(lm)
 }
 
-func (a *API) logRequest(lm *ApiLog) {
+func (a *API) logRequest(lm *Log) {
 
 	j, _ := json.Marshal(lm)
 

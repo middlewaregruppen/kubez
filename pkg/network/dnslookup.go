@@ -8,6 +8,7 @@ import (
 	"github.com/miekg/dns"
 )
 
+// DNSResult ...
 type DNSResult struct {
 	Successful     bool                 `json:"success"`
 	Error          string               `json:"error"`
@@ -15,11 +16,13 @@ type DNSResult struct {
 	ServerResponse []*DNSServerResponse `json:"serverResponses"`
 }
 
+// DNSServerResponse ...
 type DNSServerResponse struct {
 	Server string   `json:"server"`
 	Msg    *dns.Msg `json:"msg"`
 }
 
+// HandleDNSLookup ...
 func HandleDNSLookup(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
