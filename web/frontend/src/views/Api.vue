@@ -63,7 +63,7 @@ export default {
   }),
   methods: {
      createEndpoint: function(api) {
-      this.$store.commit("NEW_API", api);
+      this.$store.dispatch("createNewAPI", api);
       this.updateList()
     },
     updateEndpoint: function(api) {

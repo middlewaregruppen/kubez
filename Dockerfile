@@ -13,6 +13,6 @@ RUN npm install \
 FROM scratch
 LABEL maintaner="@middlewaregruppen (github.com/middlewaregruppen)"
 COPY --from=go-build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=go-build /build/bin/kubez-linux-amd64 /go/bin/kubez
+COPY --from=go-build /build/bin/* /
 COPY --from=npm-build /build/dist /web/frontend/dist
-ENTRYPOINT ["/go/bin/kubez"]
+ENTRYPOINT ["/kubez-linux-amd64"]

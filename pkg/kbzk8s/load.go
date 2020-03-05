@@ -95,31 +95,31 @@ func Load(load *K8SLoad) error {
 
 	switch load.LoadProfile {
 	case "none":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "none"}
 
 	case "cpu":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "cpu"}
 
 	case "mem100":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "mem", "-mb", "100"}
 
 	case "mem2000":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "mem", "-mb", "2000"}
 
 	case "log100ms":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "log", "-logwait", "100ms"}
 
 	case "log9ms":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "log", "-logwait", "9ms"}
 
 	case "log3ms":
-		command = []string{"/loader"}
+		command = []string{"/loader-linux-amd64"}
 		args = []string{"-profile", "lgo", "-logwait", "3ms"}
 	}
 

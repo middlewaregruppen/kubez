@@ -29,7 +29,12 @@ const actions = {
                 throw new Error(`API ${error}`);
               });
     },
-
+    createNewAPI({ dispatch}, api) {
+        axios.post("/kubez/apicc/", api)
+        .catch(error => {
+            dispatch('setSnack', { message: error, color: 'error'})
+        })
+    }
 
 }
 
@@ -45,11 +50,7 @@ const mutations = {
        .catch(error => {
             throw new Error(`API ${error}`);
           });
-    },
-    'NEW_API'(state, api){
-        axios.post("/kubez/apicc/", api)
     }
-
 }
 
 export default {
