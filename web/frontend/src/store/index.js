@@ -11,7 +11,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   modules: {
     info,
-    apiendpoint
+    apiendpoint,
+    kbzk8s,
   },
   strict: true
 })
