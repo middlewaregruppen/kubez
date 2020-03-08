@@ -47,6 +47,14 @@ func HandleGetPodList(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	b, err := json.Marshal(pil)
+
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		es := fmt.Sprintf("%s", err)
+		rw.Write([]byte(es))
+		return
+	}
+
 	rw.Header().Add("Content-Type", "application/json")
 	rw.Write(b)
 }
