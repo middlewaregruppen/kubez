@@ -7,15 +7,21 @@ import (
 
 // PodInfo contains information about a pod.
 type PodInfo struct {
-	Name              string            `json:"name"`
-	Namespace         string            `json:"namespace"`
-	Labels            map[string]string `json:"labels"`
-	Annotaions        map[string]string `json:"annotations"`
-	Status            v1.PodStatus      `json:"status"`
-	Condition         string            `json:"condition"`
-	ContainerStatus   string            `json:"containerStatus"`
-	ContainerRestarts int32             `json:"containerRestarts"`
-	ContainerReason   string            `json:"containerReason"`
+	Name              string                    `json:"name"`
+	Namespace         string                    `json:"namespace"`
+	Labels            map[string]string         `json:"labels"`
+	Annotaions        map[string]string         `json:"annotations"`
+	Status            v1.PodStatus              `json:"status"`
+	Condition         string                    `json:"condition"`
+	ContainerRestarts int32                     `json:"containerRestarts"`
+	ContainerInfo     map[string]*ContainerInfo `json:"containerInfo"`
+}
+
+// ContainerInfo contains a subset of information about the containers in the Pod.
+type ContainerInfo struct {
+	LivenessProbeConfig        *v1.Probe                `json:"livenessProbeConfig"`
+	RedynessProbeConfig        *v1.Probe                `json:"redynessProbeConfig"`
+	ResourceRequirementsConfig *v1.ResourceRequirements `json:"resouceRequirementsConfig"`
 }
 
 // GetPodInfoList reurns a list of all pods in the cluster.
@@ -42,8 +48,19 @@ func GetPodInfoList() ([]*PodInfo, error) {
 			Annotaions:        pod.GetAnnotations(),
 			Status:            pod.Status,
 			Condition:         condition(pod.Status),
-			ContainerReason:   reason(pod.Status),
 			ContainerRestarts: restarts(pod.Status),
+			ContainerInfo:     make(map[string]*ContainerInfo),
+		}
+
+		for _, c := range pod.Spec.Containers {
+
+			ci := &ContainerInfo{
+				LivenessProbeConfig:        c.LivenessProbe,
+				RedynessProbeConfig:        c.ReadinessProbe,
+				ResourceRequirementsConfig: &c.Resources,
+			}
+
+			pi.ContainerInfo[c.Name] = ci
 		}
 
 		podInfos = append(podInfos, pi)
@@ -51,16 +68,6 @@ func GetPodInfoList() ([]*PodInfo, error) {
 	}
 	return podInfos, nil
 
-}
-
-// reason returns the first container reason that has waiting state
-func reason(status v1.PodStatus) string {
-	for _, c := range status.ContainerStatuses {
-		if c.State.Waiting != nil {
-			return c.State.Waiting.Reason
-		}
-	}
-	return ""
 }
 
 // condition returns the Ready Condition

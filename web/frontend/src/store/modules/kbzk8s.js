@@ -8,9 +8,35 @@ const state = {
 // getters
 const getters = {
 
-    pods: (state) => {
+    podInfo: (state) => {
+
+        state.podinfo.forEach( pi => {
+                pi.kbzId = pi.namespace+"-"+pi.name
+        })
         return state.podinfo
+
+    },
+    containerStatuses: (state) => {
+        var cs = []
+        state.podinfo.forEach( pi => {
+            pi.status.containerStatuses.forEach( c => {
+                c.kbzPod = pi.name
+                c.kbzId = c.namespace+"-"+c.kbzPod+"-"+c.name
+                c.kbzState = Object.keys(c['state'])[0] 
+                if (c.kbzState == "waiting") {
+                    c.kbzReason = c.state.waiting.reason
+                    c.kbzReasonMessage = c.state.waiting.message
+                }
+                 
+                c.containerInfo = pi.containerInfo[c.name]
+               cs.push(c) 
+
+        })
+            
+        })
+        return cs
     }
+    
 
 }
 
