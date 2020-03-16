@@ -35,14 +35,14 @@
           </v-list-item-content>
         </v-list-item>
 
-        <!--v-list-item link @click="$router.push('observability')">
+        <v-list-item link @click="$router.push('pods')">
           <v-list-item-action>
             <v-icon>mdi-popcorn</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Observability</v-list-item-title>
+            <v-list-item-title>Pods and Containers</v-list-item-title>
           </v-list-item-content>
-        </v-list-item-->
+        </v-list-item>
 
         <v-list-item link @click="$router.push('network')">
           <v-list-item-action>
