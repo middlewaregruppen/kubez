@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
       - name: Lint
         run: npm run lint
   test:
@@ -30,6 +31,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
+      - name: Install
+        run: npm install
       - name: Test
         run: npm run test
   build:
@@ -40,5 +44,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
+      - name: Install
+        run: npm install
       - name: Build
         run: npm run build
