@@ -3,6 +3,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: kubez
+  labels:
+    app: kubez
 rules:
 - apiGroups:
   - ""
@@ -66,6 +68,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: kubez
+  labels:
+    app: kubez
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -79,11 +83,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kubez
+  labels:
+    app: kubez
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: kubez
+  labels:
+    app: kubez
 spec:
   type: NodePort
   selector:
@@ -98,6 +106,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubez-app
+  labels:
+    app: kubez
 spec:
   selector:
     matchLabels:
