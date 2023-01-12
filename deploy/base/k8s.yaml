@@ -85,6 +85,7 @@ metadata:
   name: kubez
   labels:
     app: kubez
+    component: kubez-app
 ---
 apiVersion: v1
 kind: Service
@@ -95,7 +96,8 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: kubez-app
+    app: kubez
+    component: kubez-app
   ports:
   - nodePort: 31503
     port: 3000
@@ -108,14 +110,17 @@ metadata:
   name: kubez-app
   labels:
     app: kubez
+    component: kubez-app
 spec:
   selector:
     matchLabels:
-      app: kubez-app
+      app: kubez
+      component: kubez-app
   template:
     metadata:
       labels:
-        app: kubez-app
+        app: kubez
+        component: kubez-app
     spec:
       containers:
       - name: kubez
