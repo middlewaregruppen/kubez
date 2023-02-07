@@ -1,0 +1,5 @@
+site_name: 'Kubez Docs'
+nav:
+- Home: index.md
+- Getting Started: gettingstarted.md
+- development: development.md

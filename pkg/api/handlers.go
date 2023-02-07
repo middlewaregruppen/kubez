@@ -44,7 +44,7 @@ func (ac *Controller) HandleCreateEndpoint(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-//HandleUpdateEndpoint webhandler for updating an Endpoint
+// HandleUpdateEndpoint webhandler for updating an Endpoint
 func (ac *Controller) HandleUpdateEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := ioutil.ReadAll(r.Body)

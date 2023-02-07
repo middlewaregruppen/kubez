@@ -1,0 +1,53 @@
+name: Node
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+defaults:
+  run:
+    shell: bash
+    working-directory: web/frontend
+
+jobs:
+  staticcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - name: Install
+        run: npm install
+      - name: Lint
+        run: npm run lint
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - name: Install
+        run: npm install
+      - name: Test
+        run: npm run test
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build

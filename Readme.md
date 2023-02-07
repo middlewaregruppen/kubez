@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/middlewaregruppen/kubez.svg?branch=master)](https://travis-ci.org/middlewaregruppen/kubez) [![Go Report Card](https://goreportcard.com/badge/github.com/middlewaregruppen/kubez)](https://goreportcard.com/report/github.com/middlewaregruppen/kubez)
+[![Go](https://github.com/middlewaregruppen/kubez/actions/workflows/go.yaml/badge.svg)](https://github.com/middlewaregruppen/kubez/actions/workflows/go.yaml) [![Node](https://github.com/middlewaregruppen/kubez/actions/workflows/node.yaml/badge.svg)](https://github.com/middlewaregruppen/kubez/actions/workflows/node.yaml)
 
 # Welcome to Dr. Kubez
 

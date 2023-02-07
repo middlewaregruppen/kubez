@@ -11,7 +11,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-//getClientSet returns a client set as a In-Cluster configuration.
+// getClientSet returns a client set as a In-Cluster configuration.
 func getClientSet() (*kubernetes.Clientset, error) {
 
 	config, err := rest.InClusterConfig()
