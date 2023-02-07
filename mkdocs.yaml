@@ -1,3 +1,5 @@
-site_name: 'kubez-docs'
+site_name: 'Kubez Docs'
 nav:
-- Home: Readme.md
+- Home: index.md
+- Getting Started: gettingstarted.md
+- development: development.md
