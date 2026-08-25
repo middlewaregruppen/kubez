@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: "Kubez"
+  annotations:
+    backstage.io/kubernetes-id: kind
+    backstage.io/kubernetes-namespace: kubez
+    backstage.io/kubernetes-label-selector: 'app=kubez'
+    argocd/app-name: kubez
+    github.com/project-slug: 'middlewaregruppen/kubez'
+    backstage.io/techdocs-ref: dir:.
+  links:
+  - url: "http://kubez:31080"
+    title: Start Page
+    icon: dashboard
+spec:
+  type: service
+  owner: user:guest
+  lifecycle: experimental

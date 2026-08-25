@@ -12,77 +12,61 @@ TESTPKGS = $(shell env GO111MODULE=on $(GO) list -f \
 SRC_FILES=find . -name "*.go" -type f -not -path "./vendor/*" -not -path "./.git/*" -not -path "./.cache/*" -print0 | xargs -0 
 BIN      = $(CURDIR)/bin
 TBIN		 = $(CURDIR)/test/bin
+INTDIR	 = $(CURDIR)/test/int-test
 GO			 = go
 TIMEOUT  = 15
 V = 0
 Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m➜\033[0m")
-GOOS ?= $(shell uname -s | awk '{print tolower($$0)}')
-GOARCH ?= amd64
 
 export GO111MODULE=on
 export CGO_ENABLED=0
 
 # Build
-
 .PHONY: all
-all: | $(BIN) ; $(info $(M) building executables) @ ## Build program binary
-	@for f in $(shell ls -d cmd/* | cut -d'/' -f2); do \
-		echo $(BIN)/$${f}-$(GOOS)-$(GOARCH) $(OS) ; \
-		$(GO) build \
-			-tags release \
-			-ldflags '-X $(MODULE)/cmd.Version=$(VERSION) -X $(MODULE)/cmd.BuildDate=$(DATE)' \
-			-o $(BIN)/$${f}-$(GOOS)-$(GOARCH) cmd/$${f}/main.go ; \
-	done
-	
+all: |kubez apiendpoint loader ## Build app program binaries
+
+.PHONY: kubez
+kubez: | $(BIN) ; $(info $(M) building executable to $(BIN)/kubez) @ ## Build kubez binary
+	$Q $(GO) build \
+		-tags release \
+		-ldflags '-X main.VERSION=${VERSION} -X main.COMMIT=${COMMIT} -X main.BRANCH=${BRANCH} -X main.GOVERSION=${GOVERSION}' \
+		-o $(BIN)/kubez cmd/kubez/main.go
+
+.PHONY: apiendpoint
+apiendpoint: | $(BIN) ; $(info $(M) building executable to $(BIN)/api-endpoint) @ ## Build api-endpoint binary
+	$Q $(GO) build \
+		-tags release \
+		-ldflags '-X main.VERSION=${VERSION} -X main.COMMIT=${COMMIT} -X main.BRANCH=${BRANCH} -X main.GOVERSION=${GOVERSION}' \
+		-o $(BIN)/api-endpoint cmd/api-endpoint/main.go
+
+.PHONY: loader
+loader: | $(BIN) ; $(info $(M) building executable to $(BIN)/loader) @ ## Build loader binary
+	$Q $(GO) build \
+		-tags release \
+		-ldflags '-X main.VERSION=${VERSION} -X main.COMMIT=${COMMIT} -X main.BRANCH=${BRANCH} -X main.GOVERSION=${GOVERSION}' \
+		-o $(BIN)/loader cmd/loader/main.go
 
 # Tools
-
 $(BIN):
 	@mkdir -p $(BIN)
 $(TBIN):
 	@mkdir -p $@
+$(INTDIR):
+	@mkdir -p $@
 $(TBIN)/%: | $(TBIN) ; $(info $(M) building $(PACKAGE))
 	$Q tmp=$$(mktemp -d); \
-	   env GO111MODULE=off GOPATH=$$tmp GOBIN=$(TBIN) $(GO) get $(PACKAGE) \
+	   env GOBIN=$(TBIN) $(GO) install $(PACKAGE) \
 		|| ret=$$?; \
-	   rm -rf $$tmp ; exit $$ret
+	   #rm -rf $$tmp ; exit $$ret
 
-GOLINT = $(TBIN)/golint
-$(BIN)/golint: PACKAGE=golang.org/x/lint/golint
-
-GOCYCLO = $(TBIN)/gocyclo
-$(TBIN)/gocyclo: PACKAGE=github.com/fzipp/gocyclo
-
-INEFFASSIGN = $(TBIN)/ineffassign
-$(TBIN)/ineffassign: PACKAGE=github.com/gordonklaus/ineffassign
-
-MISSPELL = $(TBIN)/misspell
-$(TBIN)/misspell: PACKAGE=github.com/client9/misspell/cmd/misspell
-
-GOLINT = $(TBIN)/golint
-$(TBIN)/golint: PACKAGE=golang.org/x/lint/golint
-
-GOCOV = $(TBIN)/gocov
-$(TBIN)/gocov: PACKAGE=github.com/axw/gocov/...
+GOCILINT = $(TBIN)/golangci-lint
+$(TBIN)/golangci-lint: PACKAGE=github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
 
 # Tests
-
 .PHONY: lint
-lint: | $(GOLINT) ; $(info $(M) running golint) @ ## Runs the golint command
-	$Q $(GOLINT) -set_exit_status $(PKGS)
-
-.PHONY: gocyclo
-gocyclo: | $(GOCYCLO) ; $(info $(M) running gocyclo) @ ## Calculates cyclomatic complexities of functions in Go source code
-	$Q $(GOCYCLO) -over 25 .
-
-.PHONY: ineffassign
-ineffassign: | $(INEFFASSIGN) ; $(info $(M) running ineffassign) @ ## Detects ineffectual assignments in Go code
-	$Q $(INEFFASSIGN) .
-
-.PHONY: misspell
-misspell: | $(MISSPELL) ; $(info $(M) running misspell) @ ## Finds commonly misspelled English words
-	$Q $(MISSPELL) .
+lint: | $(GOCILINT) ; $(info $(M) running golangci-lint) @ ## Runs static code analysis using golangci-lint
+	$Q $(GOCILINT) run
 
 .PHONY: test
 test: ; $(info $(M) running go test) @ ## Runs unit tests
@@ -109,13 +93,12 @@ coverage: ; $(info $(M) running go coverage) @ ## Runs tests and generates code 
 	$Q mkdir -p $(CURDIR)/test/
 	$Q $(GO) test -coverprofile="$(CURDIR)/test/coverage.out" $(PKGS)
 
-.PHONY: checkfmt
-checkfmt: ; $(info $(M) running checkfmt) @ ## Checks if code is formatted with go fmt and errors out if not
-	@test "$(shell $(SRC_FILES) gofmt -l)" = "" \
-    || { echo "Code not formatted, please run 'make fmt'"; exit 2; }
+# Helm 
+.PHONY: helm_lint
+helm_lint: ; $(info $(M) running helm lint) @ ## Verifies that the chart is well-formed
+	helm lint charts/kubez/
 
 # Misc
-
 .PHONY: help
 help:
 	@grep -hE '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -132,4 +115,4 @@ version:	## Print version information
 clean: ; $(info $(M) cleaning)	@ ## Cleanup everything
 	@rm -rfv $(BIN)
 	@rm -rfv $(TBIN)
-	@rm -rfv $(CURDIR)/test/coverage.out
+	@rm -rfv $(CURDIR)/test

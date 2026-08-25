@@ -12,6 +12,19 @@ import (
 	petname "github.com/dustinkirkland/golang-petname"
 )
 
+// VERSION is generated during compile as is never to be set here
+var VERSION string
+
+// COMMIT is the Git commit hash and is generated during compile as is never to be set here
+var COMMIT string
+
+// BRANCH is the Git branch name and is generated during compile as is never to be set here
+var BRANCH string
+
+// GOVERSION is the Go version used to compile and is generated during compile as is never to be set here
+var GOVERSION string
+
+
 func main() {
 
 	var profile string
@@ -20,8 +33,15 @@ func main() {
 	flag.CommandLine.StringVar(&profile, "profile", "none", "The loadprofile to run")
 	flag.CommandLine.IntVar(&megaBytes, "mb", 100, "MB to allocate if load profile is mem")
 	flag.CommandLine.DurationVar(&logwait, "logwait", time.Millisecond*10, "duration to wait between writing log lines.")
+	showver := flag.CommandLine.Bool("version", false, "Print version")
 
 	flag.Parse()
+
+	// Show version if requested
+	if *showver {
+		fmt.Printf("Version: %s\nCommit: %s\nBranch: %s\nGoVersion: %s\n", VERSION, COMMIT, BRANCH, GOVERSION)
+		return
+	}
 
 	switch profile {
 

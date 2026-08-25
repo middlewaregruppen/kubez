@@ -8,7 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//listAPIEndpointDeployments returns all the APIEndpoints in the cluster.
+// listAPIEndpointDeployments returns all the APIEndpoints in the cluster.
 func getAPIEndpointDeployments() ([]appv1.Deployment, error) {
 
 	clientset, err := getClientSet()
@@ -41,7 +41,7 @@ func getAPIEndpointDeployments() ([]appv1.Deployment, error) {
 	return res, nil
 }
 
-//createAPIEndpointDeployment creates an new deployment for an api-endpoint.
+// createAPIEndpointDeployment creates an new deployment for an api-endpoint.
 func createAPIEndpointDeployment(namespace, deploymentName string, api *API) error {
 
 	clientset, err := getClientSet()

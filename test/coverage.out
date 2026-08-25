@@ -1,0 +1,23 @@
+mode: set
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:43.26,63.2 14 0
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:66.49,68.16 2 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:72.2,73.16 2 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:76.2,76.15 1 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:68.16,70.3 1 0
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:73.16,75.3 1 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:79.63,81.16 2 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:85.2,87.25 3 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:95.2,95.15 1 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:81.16,83.3 1 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:87.25,89.19 2 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:92.3,93.15 2 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:89.19,90.12 1 0
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:98.56,100.16 2 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:104.2,107.23 3 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:111.2,111.16 1 1
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:100.16,102.3 1 0
+github.com/middlewaregruppen/kubez/pkg/info/cgroup.go:107.23,110.3 2 1
+github.com/middlewaregruppen/kubez/pkg/info/info.go:21.60,41.2 10 0
+github.com/middlewaregruppen/kubez/pkg/info/networkinfo.go:15.50,23.2 2 0
+github.com/middlewaregruppen/kubez/pkg/info/networkinfo.go:26.50,41.2 1 0
+github.com/middlewaregruppen/kubez/pkg/info/runtime.go:15.27,20.2 3 0

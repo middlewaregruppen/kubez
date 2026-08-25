@@ -17,7 +17,7 @@ type Info struct {
 	RequestInfo RequestInfo         `json:"requestInfo"`
 }
 
-//HandleGetInfo - get information
+// HandleGetInfo - get information
 func HandleGetInfo(w http.ResponseWriter, r *http.Request) {
 
 	cg := GetCgroup()

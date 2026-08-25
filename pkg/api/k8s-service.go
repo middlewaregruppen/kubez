@@ -6,7 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-//createAPIEndpointService creates an new service for an api-endpoint.
+// createAPIEndpointService creates an new service for an api-endpoint.
 func createAPIEndpointService(namespace, serviceName string, api *API) error {
 
 	clientset, err := getClientSet()
