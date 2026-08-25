@@ -32,14 +32,14 @@
         <v-btn x-small text class="ml-3" @click="updateList()">refresh</v-btn>
       </template>
 
-      <template v-slot:item.containerReason="{ item }">
+      <template v-slot:[`item.containerReason`]="{ item }">
         <span v-for="e in item.status.containerStatuses" v-bind:key="e.name">
           <font :color="statusColour(e)">&#9673;</font>
         </span>
       </template>
 
         
-      <template v-slot:item.kbzState="{ item }">
+      <template v-slot:[`item.kbzState`]="{ item }">
         
         <span v-if="item.kbzState ===  'running' && item.ready">
           <v-chip x-small text-color="white"  outlined color="green">ok</v-chip>
@@ -88,7 +88,7 @@
      
       </template>
 
-      <template v-slot:item.ready="{ item }">
+      <template v-slot:[`item.ready`]="{ item }">
         <v-tooltip bottom max-width="600">
           <template v-slot:activator="{ on }">
             <span v-on="on" v-if="item.containerInfo.redynessProbeConfig">
@@ -106,7 +106,7 @@
         </v-tooltip>
       </template>
 
-      <template v-slot:item.livenessprobe="{ item }">
+      <template v-slot:[`item.livenessprobe`]="{ item }">
         <v-tooltip bottom max-width="600">
           <template v-slot:activator="{ on }">
             <span v-on="on" v-if="item.containerInfo.livenessProbeConfig">
@@ -117,7 +117,7 @@
         </v-tooltip>
       </template>
 
-      <template v-slot:item.terminationReason="{ item }">
+      <template v-slot:[`item.terminationReason`]="{ item }">
         <v-tooltip bottom max-width="600">
           <template v-slot:activator="{ on }">
             <span v-on="on" v-if="item.restartCount > 0">{{item.lastState.terminated.reason}}</span>

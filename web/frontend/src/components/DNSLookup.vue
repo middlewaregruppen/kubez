@@ -9,7 +9,7 @@
           <v-row no-gutters>
             <v-col>
               <v-select
-                v-model="recordType"
+                v-model="recordTypeValue"
                 :items="recordTypes"
                 item-text="type"
                 item-value="type"
@@ -17,7 +17,7 @@
               ></v-select>
             </v-col>
             <v-col cols="8" class="ml-2">
-              <v-text-field label="Name" hint="e.g middleware.se" v-model="recordName"></v-text-field>
+              <v-text-field label="Name" hint="e.g middleware.se" v-model="recordNameValue"></v-text-field>
             </v-col>
           </v-row>
           <v-row no-gutters>
@@ -60,7 +60,7 @@ export default {
     check: function() {
       this.inProgress = true;
       axios
-        .get("/kubez/dnslookup/" + this.recordType + "/" + this.recordName)
+        .get("/kubez/dnslookup/" + this.recordTypeValue + "/" + this.recordNameValue)
         .then(res => {
           this.res = res.data;
           this.inProgress = false;
@@ -145,22 +145,26 @@ export default {
     }
   },
 
-  data: () => ({
-    inProgress: false,
-    hasChecked: false,
-    res: { serverResponses: [] },
-    recordTypes: [
-      { type: "A", desc: "Ipv4 Host" },
-      //  { type: "AAAA", desc: "Ipv6 Host" },
-      { type: "SRV", desc: "Service Location" }
-      /*{ type: "CNAME", desc: "Canonical name for an alias" },
-      { type: "TXT", desc: "Descriptive Text" },
-      { type: "MX", desc: "Mail eXchange" },
-      { type: "NS", desc: "Name Server" },
-      { type: "PTR", desc: "Pointer" },
-      { type: "SOA", desc: "Start Of Authority" },
-      { type: "ALIAS", desc: "Auto Resolved Alias" }*/
-    ]
-  })
+  data() {
+    return {
+      inProgress: false,
+      hasChecked: false,
+      res: { serverResponses: [] },
+      recordTypeValue: this.recordType,
+      recordNameValue: this.recordName,
+      recordTypes: [
+        { type: "A", desc: "Ipv4 Host" },
+        //  { type: "AAAA", desc: "Ipv6 Host" },
+        { type: "SRV", desc: "Service Location" }
+        /*{ type: "CNAME", desc: "Canonical name for an alias" },
+        { type: "TXT", desc: "Descriptive Text" },
+        { type: "MX", desc: "Mail eXchange" },
+        { type: "NS", desc: "Name Server" },
+        { type: "PTR", desc: "Pointer" },
+        { type: "SOA", desc: "Start Of Authority" },
+        { type: "ALIAS", desc: "Auto Resolved Alias" }*/
+      ]
+    };
+  }
 };
 </script>

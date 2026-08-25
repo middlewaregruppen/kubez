@@ -9,7 +9,7 @@
           <v-text-field
             label="Host and port"
             hint="e.g middleware.se:443 or 10.5.12.12:22"
-            v-model="target"
+            v-model="targetValue"
           ></v-text-field>
           <v-row no-gutters>
             <v-col>
@@ -49,17 +49,20 @@ export default {
   methods: {
     check: function() {
       this.inProgress = true;
-      axios.get("/kubez/connectioncheck/" + this.target).then(res => {
+      axios.get("/kubez/connectioncheck/" + this.targetValue).then(res => {
         this.res = res.data;
         this.inProgress = false;
         this.hasChecked = true;
       });
     }
   },
-  data: () => ({
-    inProgress: false,
-    hasChecked: false,
-    res: {}
-  })
+  data() {
+    return {
+      inProgress: false,
+      hasChecked: false,
+      res: {},
+      targetValue: this.target
+    };
+  }
 };
 </script>

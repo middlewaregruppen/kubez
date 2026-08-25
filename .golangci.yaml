@@ -1,4 +1,5 @@
-run: {}
+run:
+  go: "1.24"
 linters:
   # Enable specific linter
   # https://golangci-lint.run/usage/linters/#enabled-by-default
