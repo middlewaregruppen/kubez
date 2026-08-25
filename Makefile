@@ -14,6 +14,7 @@ BIN      = $(CURDIR)/bin
 TBIN		 = $(CURDIR)/test/bin
 INTDIR	 = $(CURDIR)/test/int-test
 GO			 = go
+DOCKER_IMAGE ?= docker.io/middlewaregruppen/kubez
 TIMEOUT  = 15
 V = 0
 Q = $(if $(filter 1,$V),,@)
@@ -46,6 +47,18 @@ loader: | $(BIN) ; $(info $(M) building executable to $(BIN)/loader) @ ## Build 
 		-tags release \
 		-ldflags '-X main.VERSION=${VERSION} -X main.COMMIT=${COMMIT} -X main.BRANCH=${BRANCH} -X main.GOVERSION=${GOVERSION}' \
 		-o $(BIN)/loader cmd/loader/main.go
+
+.PHONY: frontend
+frontend: ; $(info $(M) building frontend) @ ## Build frontend assets
+	$Q npm ci --prefix web/frontend
+	$Q NODE_ENV=production npm run build --prefix web/frontend
+
+.PHONY: docker_build
+docker_build: ; $(info $(M) building Docker image $(DOCKER_IMAGE):$(VERSION)) @ ## Build Docker image
+	$Q docker build \
+		--tag $(DOCKER_IMAGE):$(VERSION) \
+		--tag $(DOCKER_IMAGE):latest \
+		.
 
 # Tools
 $(BIN):
