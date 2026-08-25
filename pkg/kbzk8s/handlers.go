@@ -2,35 +2,29 @@ package kbzk8s
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"io"
+	"log"
 	"net/http"
 )
 
 // HandleLoad is a webhandler to create load.
 func HandleLoad(rw http.ResponseWriter, r *http.Request) {
 
-	b, err := ioutil.ReadAll(r.Body)
+	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
-		msg := fmt.Sprintf("%s", err)
-		rw.Write([]byte(msg))
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	k8sreq := &K8SLoad{}
 	err = json.Unmarshal(b, k8sreq)
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
-		es := fmt.Sprintf("Error processing incomming data: %s", err)
-		rw.Write([]byte(es))
+		http.Error(rw, "Error processing incoming data: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	err = Load(k8sreq)
 	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		es := fmt.Sprintf("Error processing request: %s", err)
-		rw.Write([]byte(es))
+		http.Error(rw, "Error processing request: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -40,21 +34,12 @@ func HandleGetPodList(rw http.ResponseWriter, r *http.Request) {
 
 	pil, err := GetPodInfoList()
 	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		es := fmt.Sprintf("%s", err)
-		rw.Write([]byte(es))
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	b, err := json.Marshal(pil)
-
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		es := fmt.Sprintf("%s", err)
-		rw.Write([]byte(es))
-		return
+	rw.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(rw).Encode(pil); err != nil {
+		log.Printf("Failed to write pod list response: %s", err)
 	}
-
-	rw.Header().Add("Content-Type", "application/json")
-	rw.Write(b)
 }

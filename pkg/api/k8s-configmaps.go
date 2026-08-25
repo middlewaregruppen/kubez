@@ -26,7 +26,7 @@ func upsertConfigMap(namespace, name string, api *API) error {
 			},
 		},
 		Data: map[string]string{
-			"api.json": fmt.Sprintf("%s", data),
+			"api.json": string(data),
 		},
 	}
 

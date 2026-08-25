@@ -1,7 +1,6 @@
 package kbzk8s
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -102,7 +101,7 @@ func GetThisImageName() string {
 // ThisNamespace gets the namespace of the pod
 func ThisNamespace() (string, error) {
 
-	nsBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	nsBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 
 	if err != nil {
 		return "", err

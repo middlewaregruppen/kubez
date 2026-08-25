@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/middlewaregruppen/kubez/pkg/api"
@@ -54,7 +54,7 @@ func main() {
 }
 
 func loadAPIConfig(config string) error {
-	cfg, err := ioutil.ReadFile(config)
+	cfg, err := os.ReadFile(config)
 
 	if err != nil {
 		return err
@@ -70,7 +70,9 @@ func loadAPIConfig(config string) error {
 
 func updateAPIConfig(config string) {
 	for {
-		loadAPIConfig(config)
+		if err := loadAPIConfig(config); err != nil {
+			log.Printf("Failed to reload API config: %s", err)
+		}
 		time.Sleep(time.Second * 2)
 	}
 }

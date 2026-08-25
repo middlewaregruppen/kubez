@@ -2,7 +2,7 @@ package network
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"reflect"
@@ -28,17 +28,20 @@ func HandleCheckConnection(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		res.Successful = false
-		res.Error = fmt.Sprintf("%s", err.Error())
+		res.Error = err.Error()
 		res.ErrorType = reflect.TypeOf(err).String()
 
 	} else {
 		res.Successful = true
 		res.Address = conn.RemoteAddr().String()
-		conn.Close()
+		if err := conn.Close(); err != nil {
+			log.Printf("Failed to close connection to %s: %s", vars["target"], err)
+		}
 	}
 
-	b, _ := json.Marshal(res)
-
-	w.Write(b)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Printf("Failed to write connection check response: %s", err)
+	}
 
 }

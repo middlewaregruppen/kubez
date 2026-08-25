@@ -24,7 +24,6 @@ var BRANCH string
 // GOVERSION is the Go version used to compile and is generated during compile as is never to be set here
 var GOVERSION string
 
-
 func main() {
 
 	var profile string
@@ -109,7 +108,10 @@ func cpu() {
 		start := time.Now()
 		p := &Message{}
 		for i := int64(1); i < iter; i++ {
-			json.NewDecoder(strings.NewReader(testBytes)).Decode(p)
+			if err := json.NewDecoder(strings.NewReader(testBytes)).Decode(p); err != nil {
+				log.Printf("Failed to decode CPU load payload: %s", err)
+				return
+			}
 		}
 		d := time.Since(start)
 
@@ -129,7 +131,10 @@ func mem(megaBytes int) {
 		log.Printf("Allocating 10mb to existing %d Mb", len(Data)/2048*2)
 		for i := 0; i < 1024*10; i++ {
 			kb := make([]byte, 1024)
-			rand.Read(kb)
+			if _, err := rand.Read(kb); err != nil {
+				log.Printf("Failed to generate memory load data: %s", err)
+				return
+			}
 			Data = append(Data, kb)
 		}
 		log.Printf("Size now: %d Mb", len(Data)/2048*2)

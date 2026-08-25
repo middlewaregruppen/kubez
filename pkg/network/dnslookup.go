@@ -2,6 +2,7 @@ package network
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -38,31 +39,22 @@ func HandleDNSLookup(w http.ResponseWriter, r *http.Request) {
 
 	case "A":
 		m.SetQuestion(name, dns.TypeA)
-		break
 	case "AAAA":
 		m.SetQuestion(name, dns.TypeAAAA)
-		break
 	case "SRV":
 		m.SetQuestion(name, dns.TypeSRV)
-		break
 	case "CNAME":
 		m.SetQuestion(name, dns.TypeCNAME)
-		break
 	case "TXT":
 		m.SetQuestion(name, dns.TypeTXT)
-		break
 	case "MX":
 		m.SetQuestion(name, dns.TypeMX)
-		break
 	case "NS":
 		m.SetQuestion(name, dns.TypeNS)
-		break
 	case "PTR":
 		m.SetQuestion(name, dns.TypePTR)
-		break
 	case "SOA":
 		m.SetQuestion(name, dns.TypeSOA)
-		break
 
 	}
 
@@ -87,8 +79,9 @@ func HandleDNSLookup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	b, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Printf("Failed to write DNS lookup response: %s", err)
+	}
 
 }

@@ -3,7 +3,7 @@ package info
 // https://kernel.googlesource.com/pub/scm/linux/kernel/git/glommer/memcg/+/cpu_stat/Documentation/cgroups/cpu.txt
 
 import (
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -64,7 +64,7 @@ func GetCgroup() *CGroup {
 
 // getIntFromFile returns an integer that are stored in a file.
 func getIntFromFile(file string) (int64, error) {
-	f, err := ioutil.ReadFile(file)
+	f, err := os.ReadFile(file)
 	if err != nil {
 		return 0, err
 	}
@@ -77,7 +77,7 @@ func getIntFromFile(file string) (int64, error) {
 }
 
 func getIntMapFromFile(file string) (map[string]int64, error) {
-	f, err := ioutil.ReadFile(file)
+	f, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func getIntMapFromFile(file string) (map[string]int64, error) {
 }
 
 func getIntArrayFromFile(file string) ([]int64, error) {
-	f, err := ioutil.ReadFile(file)
+	f, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

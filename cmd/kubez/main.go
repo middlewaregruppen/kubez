@@ -1,11 +1,9 @@
 package main
 
 import (
-	"log"
-	"fmt"
-	"time"
 	"flag"
-	"math/rand"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -42,8 +40,6 @@ func main() {
 
 	log.Printf("Starting kubez")
 
-	rand.Seed(time.Now().UnixNano())
-
 	r := mux.NewRouter()
 	r.HandleFunc("/kubez/info", info.HandleGetInfo).Methods("GET")
 	r.HandleFunc("/kubez/action/{action}", actions.ActionHandler).Methods("POST")
@@ -69,5 +65,5 @@ func main() {
 	dir := http.FileServer(http.Dir("web/frontend/dist"))
 	r.PathPrefix("/").Handler(dir)
 
-	http.ListenAndServe(":3000", r)
+	log.Fatal(http.ListenAndServe(":3000", r))
 }

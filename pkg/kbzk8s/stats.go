@@ -3,8 +3,8 @@
 package kbzk8s
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -27,13 +27,13 @@ type Stats struct {
 	NumberOfDeploymentsInNamespace int      `json:"noDeploymentsinNs"`
 }
 
-// GetStats returns a Stats Struct. Errors are not propegated to the calling function.
-// The reason is that it should not fail if the service account on the pod dosen't have
-// sufficent rigth to retrive the information from the API server.
+// GetStats returns a Stats struct. Errors are not propagated to the calling function.
+// It should not fail if the pod's service account has insufficient rights to retrieve
+// information from the API server.
 func GetStats() *Stats {
 	ki := &Stats{}
 
-	nsb, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	nsb, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 	ki.Namespace = string(nsb)
 
 	if err != nil {

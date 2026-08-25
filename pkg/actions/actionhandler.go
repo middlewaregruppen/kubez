@@ -1,10 +1,10 @@
 package actions
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,6 +24,11 @@ type Message struct {
 
 // ActionHandler ...
 func ActionHandler(rw http.ResponseWriter, r *http.Request) {
+	writeResponse := func(response string) {
+		if _, err := rw.Write([]byte(response)); err != nil {
+			log.Printf("Failed to write action response: %s", err)
+		}
+	}
 
 	vars := mux.Vars(r)
 
@@ -34,44 +39,46 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 
 		for i := 0; i < 1024*20; i++ {
 			kb := make([]byte, 1024)
-			rand.Read(kb)
+			if _, err := rand.Read(kb); err != nil {
+				http.Error(rw, "Failed to generate memory load data", http.StatusInternalServerError)
+				return
+			}
 			Data = append(Data, kb)
 		}
 
 		res := fmt.Sprintf("Size now: %d Mb", len(Data)/2048*2)
 
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "livenessoff":
 		//RespondToHealth = false
 
-		rw.Write([]byte("Letting /health time out from now on"))
+		writeResponse("Letting /health time out from now on")
 
 	case "fileinfo":
 		nofiles := 0
 		var size int64
 		var files []string
-		filepath.Walk("/", func(path string, info os.FileInfo, err error) error {
-
-			if strings.HasPrefix("/dev", path) {
-				return nil
-			}
-			if strings.HasPrefix("/proc", path) {
-				return nil
-			}
-
+		err := filepath.Walk("/", func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
+			}
+			if path == "/dev" || path == "/proc" {
+				return filepath.SkipDir
 			}
 			files = append(files, info.Name())
 			nofiles++
 			size = size + info.Size()
 			return nil
 		})
+		if err != nil {
+			http.Error(rw, "Failed to inspect files", http.StatusInternalServerError)
+			return
+		}
 
 		res := fmt.Sprintf("Found %d files. Size: %d Mb", nofiles, size/1024/1024)
 
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "log100":
 		lines := 100
@@ -83,7 +90,7 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		d := time.Since(start)
 		res := fmt.Sprintf("Logged %d lines in %.2f seconds", lines, d.Seconds())
 
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "log1000":
 		lines := 1000
@@ -95,7 +102,7 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		d := time.Since(start)
 		res := fmt.Sprintf("Logged %d lines in %.2f seconds", lines, d.Seconds())
 
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "log10000":
 		lines := 10000
@@ -107,7 +114,7 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		d := time.Since(start)
 		res := fmt.Sprintf("Logged %d lines in %.2f seconds", lines, d.Seconds())
 
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "cpusmall":
 		const testBytes = `{ "Test": "value" }`
@@ -115,11 +122,14 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		p := &Message{}
 		for i := int64(1); i < iter; i++ {
-			json.NewDecoder(strings.NewReader(testBytes)).Decode(p)
+			if err := json.NewDecoder(strings.NewReader(testBytes)).Decode(p); err != nil {
+				http.Error(rw, "Failed to process CPU load payload", http.StatusInternalServerError)
+				return
+			}
 		}
 		d := time.Since(start)
 		res := fmt.Sprintf("[small]. Took %.2f seconds", d.Seconds())
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "cpumedium":
 		const testBytes = `{ "Test": "value" }`
@@ -127,11 +137,14 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		p := &Message{}
 		for i := int64(1); i < iter; i++ {
-			json.NewDecoder(strings.NewReader(testBytes)).Decode(p)
+			if err := json.NewDecoder(strings.NewReader(testBytes)).Decode(p); err != nil {
+				http.Error(rw, "Failed to process CPU load payload", http.StatusInternalServerError)
+				return
+			}
 		}
 		d := time.Since(start)
 		res := fmt.Sprintf("Done: %.2f s", d.Seconds())
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 	case "cpularge":
 		const testBytes = `{ "Test": "value" }`
@@ -139,11 +152,14 @@ func ActionHandler(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		p := &Message{}
 		for i := int64(1); i < iter; i++ {
-			json.NewDecoder(strings.NewReader(testBytes)).Decode(p)
+			if err := json.NewDecoder(strings.NewReader(testBytes)).Decode(p); err != nil {
+				http.Error(rw, "Failed to process CPU load payload", http.StatusInternalServerError)
+				return
+			}
 		}
 		d := time.Since(start)
 		res := fmt.Sprintf("[large]. Took %.2f seconds", d.Seconds())
-		rw.Write([]byte(res))
+		writeResponse(res)
 
 		/*case "metrics-increase":
 			opsProcessed.Inc()

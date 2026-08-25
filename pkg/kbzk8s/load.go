@@ -2,7 +2,7 @@ package kbzk8s
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	petname "github.com/dustinkirkland/golang-petname"
 	appv1 "k8s.io/api/apps/v1"
@@ -55,7 +55,7 @@ type K8SLoad struct {
 func Load(load *K8SLoad) error {
 
 	if load.Namespace == "" {
-		nsBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+		nsBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 		if err != nil {
 			return err
 		}

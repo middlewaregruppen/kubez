@@ -33,9 +33,7 @@ func getAPIEndpointDeployments() ([]appv1.Deployment, error) {
 			continue
 		}
 
-		for _, d := range dlst.Items {
-			res = append(res, d)
-		}
+		res = append(res, dlst.Items...)
 	}
 
 	return res, nil
@@ -49,8 +47,7 @@ func createAPIEndpointDeployment(namespace, deploymentName string, api *API) err
 		return err
 	}
 
-	var replicas int32
-	replicas = 1
+	replicas := int32(1)
 
 	_, err = clientset.AppsV1().Deployments(namespace).Create(&appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{

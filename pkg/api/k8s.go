@@ -1,7 +1,6 @@
 package api
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -100,7 +99,7 @@ func getThisImageName() string {
 
 func thisNamespace() (string, error) {
 
-	nsBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	nsBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 
 	if err != nil {
 		return "", err

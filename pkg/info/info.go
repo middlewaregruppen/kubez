@@ -2,6 +2,7 @@ package info
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 
@@ -32,10 +33,14 @@ func HandleGetInfo(w http.ResponseWriter, r *http.Request) {
 		K8SStats:    ki,
 		RequestInfo: ri,
 	}
-	hn, _ := os.Hostname()
+	hn, err := os.Hostname()
+	if err != nil {
+		log.Printf("Failed to get hostname: %s", err)
+	}
 	rt.Hostname = hn
 
-	b, _ := json.Marshal(rt)
-	w.Header().Add("Content-Type:", "application/json")
-	w.Write(b)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(rt); err != nil {
+		log.Printf("Failed to write info response: %s", err)
+	}
 }

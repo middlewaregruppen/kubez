@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -82,7 +81,7 @@ func (a *API) ResponseReader(response io.Reader) (reader io.Reader, buffSize int
 
 // DelayRequest ...
 func (a *API) DelayRequest() {
-	// Calulate how long time to delay.
+	// Calculate how long to delay.
 	delay := 0
 	if a.DelayMin < a.DelayMax {
 		delay = rand.Intn(a.DelayMax-a.DelayMin) + a.DelayMin
@@ -102,7 +101,7 @@ func (a *API) DelayRequest() {
 // HandleAPIRequest is a web handler that processes requests
 func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 
-	var body io.Reader
+	body := a.RequestReader(r)
 
 	lm := &Log{
 		APIName:     a.Name,
@@ -112,10 +111,6 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 		RequestURI:  r.RequestURI,
 		UserAgent:   r.UserAgent(),
 		RemoteAddr:  r.RemoteAddr,
-	}
-
-	if a.RequestRate > 0 {
-		body = a.RequestReader(r)
 	}
 
 	a.DelayRequest()
@@ -153,7 +148,11 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 		response = strings.NewReader(a.StaticContent)
 
 	case "echo":
-		b, _ := ioutil.ReadAll(body)
+		b, err := io.ReadAll(body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusBadRequest)
+			return
+		}
 		response = bytes.NewReader(b)
 	default:
 		response = bytes.NewReader([]byte("Configuration error: Invalid response type defined!"))
@@ -170,14 +169,22 @@ func (a *API) HandleAPIRequest(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		n, err := response.Read(buf)
-		if err == io.EOF {
-			break
-		}
-		w.Write(buf[:n])
+		if n > 0 {
+			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
+				log.Printf("Failed to write API response: %s", writeErr)
+				return
+			}
 
-		// Flush if implemeentation supports it
-		if f, ok := w.(http.Flusher); ok {
-			f.Flush()
+			// Flush if implementation supports it.
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+		}
+		if err != nil {
+			if err != io.EOF {
+				log.Printf("Failed to read API response: %s", err)
+			}
+			break
 		}
 	}
 	a.logRequest(lm)
