@@ -5,30 +5,58 @@
       :items="tdata"
       item-value="kbzId"
       density="compact"
+      fixed-header
+      height="calc(100vh - 132px)"
       :search="search"
       :items-per-page="10000"
       hide-default-footer
-      class="elevation-1"
+      class="workloads-table elevation-1"
     >
       <template v-slot:top>
-        <v-toolbar flat>
-          <v-toolbar-title>Pods and Containers</v-toolbar-title>
+        <v-toolbar class="table-header px-4" flat>
+          <div class="section-heading">
+            <v-avatar color="blue-lighten-2" rounded="lg" size="40" variant="tonal">
+              <v-icon icon="mdi-cube-outline" size="24"></v-icon>
+            </v-avatar>
+            <div>
+              <div class="section-heading__title">Pods and Containers</div>
+              <div class="section-heading__subtitle">Workload health and runtime status</div>
+            </div>
+          </div>
           <v-spacer></v-spacer>
+          <v-btn-toggle
+            v-model="type"
+            class="view-selector"
+            color="blue-lighten-2"
+            density="comfortable"
+            divided
+            mandatory
+            rounded="lg"
+            variant="outlined"
+          >
+            <v-btn class="view-selector__button" value="pods">Pods</v-btn>
+            <v-btn class="view-selector__button" value="containers">Container Overview</v-btn>
+          </v-btn-toggle>
           <v-text-field
             v-model="search"
+            class="table-search ml-3"
             append-inner-icon="mdi-magnify"
-            label="Search"
+            density="compact"
+            label="Search workloads"
             single-line
             hide-details
+            variant="outlined"
           ></v-text-field>
+          <v-btn
+            class="refresh-button ml-2"
+            color="blue-grey-lighten-2"
+            icon="mdi-refresh"
+            rounded="lg"
+            variant="text"
+            aria-label="Refresh workloads"
+            @click="updateList()"
+          ></v-btn>
         </v-toolbar>
-        <div class="d-flex align-center ml-4 mb-2">
-          <v-btn-toggle v-model="type" mandatory>
-            <v-btn size="x-small" variant="text" value="pods">pods</v-btn>
-            <v-btn size="x-small" variant="text" value="containers">container overview</v-btn>
-          </v-btn-toggle>
-          <v-btn size="x-small" variant="text" class="ml-3" @click="updateList()">refresh</v-btn>
-        </div>
       </template>
 
       <template v-slot:[`item.containerReason`]="{ item }">
@@ -39,7 +67,7 @@
 
       <template v-slot:[`item.kbzState`]="{ item }">
         <span v-if="item.kbzState === 'running' && item.ready">
-          <v-chip size="x-small" variant="outlined" color="green">ok</v-chip>
+          <v-chip size="x-small" variant="outlined" color="green-accent-3">ok</v-chip>
         </span>
 
         <v-tooltip location="bottom" max-width="600" v-if="item.kbzReason">
@@ -84,11 +112,14 @@
                 {{ probeType(item.containerInfo.redynessProbeConfig) }} probe
               </v-chip>
             </span>
-            <span v-else-if="!item.ready">
+            <span v-bind="props" v-else-if="!item.ready">
               <v-chip size="x-small" variant="outlined" :color="probeChipColor(item.ready)">not ready</v-chip>
             </span>
           </template>
-          <span>{{ item.containerInfo && item.containerInfo.redynessProbeConfig }}</span>
+          <div class="probe-tooltip__status">
+            {{ readinessStatus(item) }}
+          </div>
+          <pre v-if="item.containerInfo && item.containerInfo.redynessProbeConfig" class="probe-tooltip__config">{{ formatProbeConfig(item.containerInfo.redynessProbeConfig) }}</pre>
         </v-tooltip>
       </template>
 
@@ -96,12 +127,15 @@
         <v-tooltip location="bottom" max-width="600">
           <template v-slot:activator="{ props }">
             <span v-bind="props" v-if="item.containerInfo && item.containerInfo.livenessProbeConfig">
-              <v-chip variant="outlined" size="x-small" color="black">
+              <v-chip variant="outlined" size="x-small" color="grey-lighten-1">
                 {{ probeType(item.containerInfo.livenessProbeConfig) }} probe
               </v-chip>
             </span>
           </template>
-          <span>{{ item.containerInfo && item.containerInfo.livenessProbeConfig }}</span>
+          <div class="probe-tooltip__status">
+            Liveness probe configured
+          </div>
+          <pre class="probe-tooltip__config">{{ formatProbeConfig(item.containerInfo && item.containerInfo.livenessProbeConfig) }}</pre>
         </v-tooltip>
       </template>
 
@@ -121,6 +155,7 @@
 import { useKbzK8sStore } from '@/stores/kbzk8s'
 
 export default {
+  name: 'PodsView',
   setup() {
     return {
       k8sStore: useKbzK8sStore()
@@ -148,10 +183,18 @@ export default {
       this.k8sStore.fetchPodInfo()
     },
     statusColour(cs) {
-      return cs.ready ? 'green' : 'red'
+      return cs.ready ? '#76ff03' : 'red'
     },
     probeChipColor(ready) {
-      return ready ? 'green' : 'orange'
+      return ready ? 'green-accent-3' : 'orange'
+    },
+    readinessStatus(item) {
+      const configured = item.containerInfo?.redynessProbeConfig
+      if (!configured) return 'No readiness probe configured; container is not ready'
+      return item.ready ? 'Container is ready' : 'Container is not ready'
+    },
+    formatProbeConfig(config) {
+      return JSON.stringify(config, null, 2)
     },
     probeType(cfg) {
       for (const key of Object.keys(cfg)) {
@@ -201,3 +244,85 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.table-header {
+  min-height: 72px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-heading__title {
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.section-heading__subtitle {
+  margin-top: 0.1rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.table-search {
+  max-width: 280px;
+}
+
+:deep(.workloads-table .v-table__wrapper > table > thead > tr > th) {
+  height: 44px;
+  background-color: #2e353b !important;
+  border-top: 1px solid rgba(144, 202, 249, 0.22);
+  border-bottom: 1px solid #90caf9 !important;
+  color: #fff !important;
+  font-size: 0.75rem;
+  font-weight: 700 !important;
+  letter-spacing: 0.025em;
+}
+
+:deep(.workloads-table .v-table__wrapper > table > thead > tr > th:not(:last-child)) {
+  border-right: 1px solid rgba(144, 202, 249, 0.1);
+}
+
+.view-selector__button,
+.refresh-button {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.view-selector__button {
+  font-weight: 600;
+}
+
+.probe-tooltip__status {
+  font-weight: 600;
+}
+
+.probe-tooltip__config {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  white-space: pre-wrap;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 700px) {
+  .section-heading__subtitle {
+    display: none;
+  }
+
+  .view-selector__button {
+    padding-inline: 0.5rem;
+  }
+
+  .table-search {
+    display: none;
+  }
+}
+</style>

@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js"
+    "lint": "eslint src --ext .vue,.js"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

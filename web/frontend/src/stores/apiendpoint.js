@@ -4,7 +4,9 @@ import { useInfoStore } from './info'
 
 export const useApiEndpointStore = defineStore('apiendpoint', {
   state: () => ({
-    apis: []
+    apis: [],
+    loading: false,
+    error: ''
   }),
 
   getters: {
@@ -13,11 +15,16 @@ export const useApiEndpointStore = defineStore('apiendpoint', {
 
   actions: {
     async fetchAPIEndpoints() {
+      this.loading = true
+      this.error = ''
       try {
         const res = await axios.get('/kubez/apicc/')
-        this.apis = res.data
+        this.apis = Array.isArray(res.data) ? res.data : []
       } catch (error) {
-        throw new Error(`API ${error}`)
+        this.apis = []
+        this.error = error.response?.data || error.message || String(error)
+      } finally {
+        this.loading = false
       }
     },
     async createNewAPI(api) {

@@ -1,12 +1,12 @@
 <template>
   <v-container fluid>
-    <v-list-item lines="three">
+    <v-list-item class="endpoint-summary" lines="three">
       <v-list-item-title class="text-subtitle-1 mb-1">{{ name }}</v-list-item-title>
       <v-list-item-subtitle v-if="collapsed">
-        <v-chip size="small" variant="outlined">namespace: {{ namespace }}</v-chip>
-        <v-chip size="small" variant="outlined">pods: {{ runningpods }}</v-chip>
-        <v-chip size="small" variant="outlined">port: {{ port }}</v-chip>
-        <v-chip size="small" variant="outlined">{{ servicetype }}</v-chip>
+        <v-chip class="mr-1 mt-1" color="blue-grey-lighten-2" size="small" variant="tonal">namespace: {{ namespace }}</v-chip>
+        <v-chip class="mr-1 mt-1" color="blue-grey-lighten-2" size="small" variant="tonal">pods: {{ runningpods }}</v-chip>
+        <v-chip class="mr-1 mt-1" color="blue-grey-lighten-2" size="small" variant="tonal">port: {{ port }}</v-chip>
+        <v-chip class="mr-1 mt-1" color="blue-grey-lighten-2" size="small" variant="tonal">{{ servicetype }}</v-chip>
       </v-list-item-subtitle>
 
       <div class="text-body-2" v-if="!collapsed">
@@ -63,13 +63,13 @@
           <v-chip size="small" v-if="aep.failurerate > 0" variant="outlined">{{ aep.failurerate }}% failure rate</v-chip>
           <v-chip size="small" variant="outlined">{{ aep.responsetype }}</v-chip>
           <v-chip size="small" v-if="aep.responserate > 0" variant="outlined">{{ prettyBytesRate(aep.responserate) }} response rate</v-chip>
-          <v-btn icon="mdi-cog" variant="text" class="mt-1" @click="collapsed = false"></v-btn>
+          <v-btn color="blue-lighten-2" icon="mdi-tune-variant" variant="text" class="mt-1" @click="collapsed = false"></v-btn>
         </div>
       </template>
     </v-list-item>
 
-    <v-btn size="small" class="ml-4" v-if="!collapsed && !expanded" @click="saveAndCollapse()">Apply and Close</v-btn>
-    <v-btn size="small" class="ml-4" v-if="expanded" @click="update()">Apply</v-btn>
+    <v-btn color="blue-lighten-2" size="small" variant="outlined" class="ml-4 mb-3" v-if="!collapsed && !expanded" @click="saveAndCollapse()">Apply and Close</v-btn>
+    <v-btn color="blue-lighten-2" size="small" variant="outlined" class="ml-4 mb-3" v-if="expanded" @click="update()">Apply</v-btn>
   </v-container>
 </template>
 
@@ -181,3 +181,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.endpoint-summary {
+  padding: 0.75rem 1rem;
+}
+</style>

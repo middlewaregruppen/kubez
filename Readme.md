@@ -42,17 +42,81 @@ make docker_build
 
 ## Local development
 
-#### Start the server
+### Start the server
 
-`go run cmd/kubez/main.go`
+```bash
+go run cmd/kubez/main.go
+```
 
-or
+Running it directly will trigger the fallback to load your KUBECONFIG and connect
+to the current cluster you're using.
 
-`docker run -p3000:3000 -m50m --cpus=0.5 middlewaregruppen/kubez:latest`
+If you want to connect to a different cluster, set the KUBECONFIG environment variable.
 
-#### Start vue
+or you can run it as a docker container and mount your kubeconfig into it:
 
-`npm run dev --prefix web/frontend`
+```bash
+docker run -p 3000:3000 -m 50m --cpus=0.5 \
+  -v ~/.kube:/root/.kube:ro \
+  -e KUBECONFIG=/root/.kube/config \
+  middlewaregruppen/kubez:latest
+```
+
+or if you're running kind or minikube, you'll need to add the `--network=host` flag to the docker run command, like this:
+
+```bash
+docker run -p 3000:3000 -m 50m --cpus=0.5  --network=host  -v ~/.kube:/root/.kube:ro  middlewaregruppen/kubez:latest
+```
+
+To know which one to use, run `kubectl config view --minify | grep server` and
+check if the server is running on localhost or on a different IP.
+
+### Working with our OMNI lab setup and a local installation of kubez
+
+To work wiith our OMNI lab setup that uses OIDC to log in, we need to run a proxy
+
+```bash
+kubectl --context="$CONTEXT" proxy \
+  --address=0.0.0.0 \
+  --accept-hosts='^.*$' \
+  --port=8001
+```
+
+Create a `/tmp/kubez-kubeconfig.yaml` with the following content:
+
+```yaml
+apiVersion: v1
+kind: Config
+clusters:
+  - name: local-proxy
+    cluster:
+      server: http://host.docker.internal:8001
+contexts:
+  - name: local-proxy
+    context:
+      cluster: local-proxy
+      namespace: default
+current-context: local-proxy
+users: []
+```
+
+Then run with the proxied kubeconfig mounted:
+
+```bash
+docker run --hostname kubez-local \
+  -p 3000:3000 \
+  -m 50m \
+  --cpus=0.5 \
+  -v /tmp/kubez-kubeconfig.yaml:/kubeconfig:ro \
+  -e KUBECONFIG=/kubeconfig \
+  middlewaregruppen/kubez:latest
+```
+
+### Start vue
+
+```bash
+npm run dev --prefix web/frontend
+```
 
 Access the ui from `http://localhost:5173`
 

@@ -1,17 +1,16 @@
 <template>
   <v-container fluid>
-    <v-row align-content="space-around" no-gutters>
-      <v-col cols="2">
-        <v-btn size="small" @click="loadCpu">Load CPU</v-btn>
-        <br />
-        <span v-if="cpu !== '-'" class="text-caption">{{ cpu }}</span>
-      </v-col>
-      <v-col cols="2">
-        <v-btn size="small" @click="malloc">Allocate 20 Mb</v-btn>
-        <br />
-        <span v-if="memory !== '-'" class="text-caption">{{ memory }}</span>
-      </v-col>
-    </v-row>
+    <div class="load-tools-heading">Container load actions</div>
+    <div class="load-actions">
+      <div class="load-action">
+        <v-btn color="blue-lighten-2" prepend-icon="mdi-cpu-64-bit" variant="outlined" @click="loadCpu">Load CPU</v-btn>
+        <span v-if="cpu !== '-'" class="load-action__result">{{ cpu }}</span>
+      </div>
+      <div class="load-action">
+        <v-btn color="blue-lighten-2" prepend-icon="mdi-memory" variant="outlined" @click="malloc">Allocate 20 MB</v-btn>
+        <span v-if="memory !== '-'" class="load-action__result">{{ memory }}</span>
+      </div>
+    </div>
   </v-container>
 </template>
 
@@ -44,7 +43,29 @@ export default {
 </script>
 
 <style scoped>
-.text-caption {
-  padding-left: 2px;
+.load-tools-heading {
+  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.load-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.load-action {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.load-action__result {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
 }
 </style>
