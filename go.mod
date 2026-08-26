@@ -7,9 +7,9 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/juju/ratelimit v1.0.1
 	github.com/miekg/dns v1.1.27
-	k8s.io/api v0.17.2
-	k8s.io/apimachinery v0.17.9
-	k8s.io/client-go v0.17.2
+	k8s.io/api v0.17.16
+	k8s.io/apimachinery v0.17.16
+	k8s.io/client-go v0.17.16
 )
 
 require (
