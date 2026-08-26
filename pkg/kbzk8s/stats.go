@@ -4,11 +4,8 @@ package kbzk8s
 
 import (
 	"log"
-	"os"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
 // Stats Contains information about the cluster and the namespace that
@@ -33,21 +30,14 @@ type Stats struct {
 func GetStats() *Stats {
 	ki := &Stats{}
 
-	nsb, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	ki.Namespace = string(nsb)
-
+	ns, err := ThisNamespace()
 	if err != nil {
 		log.Printf("%s", err)
 		return ki
 	}
+	ki.Namespace = ns
 
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		log.Printf("%s", err)
-		return ki
-	}
-	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := GetClientSet()
 	if err != nil {
 		log.Printf("%s", err)
 		return ki

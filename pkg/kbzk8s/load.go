@@ -2,7 +2,6 @@ package kbzk8s
 
 import (
 	"fmt"
-	"os"
 
 	petname "github.com/dustinkirkland/golang-petname"
 	appv1 "k8s.io/api/apps/v1"
@@ -10,8 +9,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
 // K8SLoad is the configuration for Load().
@@ -55,19 +52,14 @@ type K8SLoad struct {
 func Load(load *K8SLoad) error {
 
 	if load.Namespace == "" {
-		nsBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+		ns, err := ThisNamespace()
 		if err != nil {
 			return err
 		}
-		load.Namespace = string(nsBytes)
+		load.Namespace = ns
+	}
 
-	}
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return err
-	}
-	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := GetClientSet()
 	if err != nil {
 		return err
 	}

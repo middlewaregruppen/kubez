@@ -8,17 +8,27 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
-// GetClientSet returns a client set as a In-Cluster configuration.
+// GetClientSet builds a Kubernetes clientset. When running inside a pod it
+// uses the in-cluster service-account credentials. When running locally it
+// falls back to the kubeconfig file (~/.kube/config or $KUBECONFIG).
 func GetClientSet() (*kubernetes.Clientset, error) {
 
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, err
+		// Not running in a pod — fall back to local kubeconfig.
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		config, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+			loadingRules,
+			&clientcmd.ConfigOverrides{},
+		).ClientConfig()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
@@ -98,13 +108,25 @@ func GetThisImageName() string {
 	return defaultImage
 }
 
-// ThisNamespace gets the namespace of the pod
+// ThisNamespace returns the namespace the app is running in.
+// Inside a pod this comes from the projected service-account file.
+// Locally it is derived from the active kubeconfig context.
 func ThisNamespace() (string, error) {
 
+	// In-cluster: namespace is injected as a file by the kubelet.
 	nsBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err == nil {
+		return string(nsBytes), nil
+	}
 
+	// Local: derive the namespace from the active kubeconfig context.
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	ns, _, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		loadingRules,
+		&clientcmd.ConfigOverrides{},
+	).Namespace()
 	if err != nil {
 		return "", err
 	}
-	return string(nsBytes), nil
+	return ns, nil
 }

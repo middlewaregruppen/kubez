@@ -4,7 +4,7 @@ WORKDIR /build/
 RUN apk add --no-cache --update git make ca-certificates \
 &&  make
 
-FROM node:16 AS npm-build
+FROM node:22-alpine AS npm-build
 COPY web/frontend/ /build
 WORKDIR /build/
 RUN npm ci \

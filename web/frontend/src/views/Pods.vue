@@ -3,126 +3,148 @@
     <v-data-table
       :headers="headers"
       :items="tdata"
-      item-key="kbzId"
-      dense
+      item-value="kbzId"
+      density="compact"
+      fixed-header
+      height="calc(100vh - 132px)"
       :search="search"
-      single-line
       :items-per-page="10000"
       hide-default-footer
-      class="elevation-1"
+      class="workloads-table elevation-1"
     >
       <template v-slot:top>
-        <v-toolbar flat>
-          <v-toolbar-title>Pods and Containers</v-toolbar-title>
-
+        <v-toolbar class="table-header px-4" flat>
+          <div class="section-heading">
+            <v-avatar color="blue-lighten-2" rounded="lg" size="40" variant="tonal">
+              <v-icon icon="mdi-cube-outline" size="24"></v-icon>
+            </v-avatar>
+            <div>
+              <div class="section-heading__title">Pods and Containers</div>
+              <div class="section-heading__subtitle">Workload health and runtime status</div>
+            </div>
+          </div>
           <v-spacer></v-spacer>
+          <v-btn-toggle
+            v-model="type"
+            class="view-selector"
+            color="blue-lighten-2"
+            density="comfortable"
+            divided
+            mandatory
+            rounded="lg"
+            variant="outlined"
+          >
+            <v-btn class="view-selector__button" value="pods">Pods</v-btn>
+            <v-btn class="view-selector__button" value="containers">Container Overview</v-btn>
+          </v-btn-toggle>
           <v-text-field
             v-model="search"
-            append-icon="mdi-magnify"
-            label="Search"
+            class="table-search ml-3"
+            append-inner-icon="mdi-magnify"
+            density="compact"
+            label="Search workloads"
             single-line
             hide-details
+            variant="outlined"
           ></v-text-field>
-          <!--v-switch v-model="singleExpand" label="Single expand" class="mt-2"></v-switch-->
+          <v-btn
+            class="refresh-button ml-2"
+            color="blue-grey-lighten-2"
+            icon="mdi-refresh"
+            rounded="lg"
+            variant="text"
+            aria-label="Refresh workloads"
+            @click="updateList()"
+          ></v-btn>
         </v-toolbar>
-        <v-btn-toggle v-model="type" mandatory class="ml-4">
-          <v-btn x-small text value="pods">pods</v-btn>
-          <v-btn x-small text value="containers">container overview</v-btn>
-        </v-btn-toggle>
-        <v-btn x-small text class="ml-3" @click="updateList()">refresh</v-btn>
       </template>
 
       <template v-slot:[`item.containerReason`]="{ item }">
-        <span v-for="e in item.status.containerStatuses" v-bind:key="e.name">
-          <font :color="statusColour(e)">&#9673;</font>
+        <span v-for="e in item.status.containerStatuses" :key="e.name">
+          <span :style="{ color: statusColour(e) }">&#9673;</span>
         </span>
       </template>
 
-        
       <template v-slot:[`item.kbzState`]="{ item }">
-        
-        <span v-if="item.kbzState ===  'running' && item.ready">
-          <v-chip x-small text-color="white"  outlined color="green">ok</v-chip>
+        <span v-if="item.kbzState === 'running' && item.ready">
+          <v-chip size="x-small" variant="outlined" color="green-accent-3">ok</v-chip>
         </span>
 
-        <v-tooltip bottom max-width="600" v-if="item.kbzReason">
-          <template v-slot:activator="{ on }">
-            <span v-on="on">
-              <v-chip x-small outlined text-color="white" color="orange">{{ item.kbzReason }}</v-chip>
-              <v-chip x-small outlined text-color="white" color="orange"  v-if="terminationReason(item)">{{terminationReason(item)}} </v-chip>
+        <v-tooltip location="bottom" max-width="600" v-if="item.kbzReason">
+          <template v-slot:activator="{ props }">
+            <span v-bind="props">
+              <v-chip size="x-small" variant="outlined" color="orange">{{ item.kbzReason }}</v-chip>
+              <v-chip size="x-small" variant="outlined" color="orange" v-if="terminationReason(item)">{{ terminationReason(item) }}</v-chip>
             </span>
           </template>
-          <span>Pod is in {{item.kbzState}} state. <br/> {{item.kbzReasonMessage}} <br/> -- <br/> </span> 
-          <span v-if="terminationReason(item)"> Reason container terminated: {{item.lastState.terminated.reason}} <br/> {{item.lastState.terminated.message}} </span>
+          <span>Pod is in {{ item.kbzState }} state.<br />{{ item.kbzReasonMessage }}<br />--<br /></span>
+          <span v-if="terminationReason(item)">Reason container terminated: {{ item.lastState.terminated.reason }}<br />{{ item.lastState.terminated.message }}</span>
         </v-tooltip>
 
-
-        <v-tooltip bottom max-width="600" v-else-if="item.kbzState ===  'running' && !item.ready">
-          <template v-slot:activator="{ on }">
-            <span v-on="on">
-              <v-chip x-small text-color="white" outlined color="orange">not ready</v-chip>
+        <v-tooltip location="bottom" max-width="600" v-else-if="item.kbzState === 'running' && !item.ready">
+          <template v-slot:activator="{ props }">
+            <span v-bind="props">
+              <v-chip size="x-small" variant="outlined" color="orange">not ready</v-chip>
             </span>
           </template>
           <span>Container is running but is not ready to receive traffic</span>
         </v-tooltip>
-        
-        
 
         <v-tooltip
-          bottom
+          location="bottom"
           max-width="600"
-          v-else-if="item.kbzState ===  'running' && item.ready && recentlyRestarted(item)"
+          v-else-if="item.kbzState === 'running' && item.ready && recentlyRestarted(item)"
         >
-          <template v-slot:activator="{ on }">
-            <span v-on="on">
-              <v-chip
-                x-small
-                outlined
-                text-color="white" 
-                color="orange"
-              >restarted due to {{item.lastState.terminated.reason}}</v-chip>
+          <template v-slot:activator="{ props }">
+            <span v-bind="props">
+              <v-chip size="x-small" variant="outlined" color="orange">restarted due to {{ item.lastState.terminated.reason }}</v-chip>
             </span>
           </template>
-          <span>The container was restarted less than 15 minutes ago <br/> -- <br/> {{item.lastState.terminated.message}} </span>
+          <span>The container was restarted less than 15 minutes ago<br />--<br />{{ item.lastState.terminated.message }}</span>
         </v-tooltip>
-     
       </template>
 
       <template v-slot:[`item.ready`]="{ item }">
-        <v-tooltip bottom max-width="600">
-          <template v-slot:activator="{ on }">
-            <span v-on="on" v-if="item.containerInfo.redynessProbeConfig">
-              <v-chip
-                x-small
-                outlined
-                :color="probeChipColor(item.ready)" text-color="white" 
-              >{{probeType(item.containerInfo.redynessProbeConfig)}} probe</v-chip>
+        <v-tooltip location="bottom" max-width="600">
+          <template v-slot:activator="{ props }">
+            <span v-bind="props" v-if="item.containerInfo && item.containerInfo.redynessProbeConfig">
+              <v-chip size="x-small" variant="outlined" :color="probeChipColor(item.ready)">
+                {{ probeType(item.containerInfo.redynessProbeConfig) }} probe
+              </v-chip>
             </span>
-            <span v-else-if="!item.ready">
-              <v-chip x-small outlined text-color="white" :color="probeChipColor(item.ready)">not ready</v-chip>
+            <span v-bind="props" v-else-if="!item.ready">
+              <v-chip size="x-small" variant="outlined" :color="probeChipColor(item.ready)">not ready</v-chip>
             </span>
           </template>
-          <span>{{ item.containerInfo.redynessProbeConfig }}</span>
+          <div class="probe-tooltip__status">
+            {{ readinessStatus(item) }}
+          </div>
+          <pre v-if="item.containerInfo && item.containerInfo.redynessProbeConfig" class="probe-tooltip__config">{{ formatProbeConfig(item.containerInfo.redynessProbeConfig) }}</pre>
         </v-tooltip>
       </template>
 
       <template v-slot:[`item.livenessprobe`]="{ item }">
-        <v-tooltip bottom max-width="600">
-          <template v-slot:activator="{ on }">
-            <span v-on="on" v-if="item.containerInfo.livenessProbeConfig">
-              <v-chip outlined x-small text-color="white"  color="black ">{{probeType(item.containerInfo.livenessProbeConfig)}} probe</v-chip>
+        <v-tooltip location="bottom" max-width="600">
+          <template v-slot:activator="{ props }">
+            <span v-bind="props" v-if="item.containerInfo && item.containerInfo.livenessProbeConfig">
+              <v-chip variant="outlined" size="x-small" color="grey-lighten-1">
+                {{ probeType(item.containerInfo.livenessProbeConfig) }} probe
+              </v-chip>
             </span>
           </template>
-          <span>{{ item.containerInfo.livenessProbeConfig }}</span>
+          <div class="probe-tooltip__status">
+            Liveness probe configured
+          </div>
+          <pre class="probe-tooltip__config">{{ formatProbeConfig(item.containerInfo && item.containerInfo.livenessProbeConfig) }}</pre>
         </v-tooltip>
       </template>
 
       <template v-slot:[`item.terminationReason`]="{ item }">
-        <v-tooltip bottom max-width="600">
-          <template v-slot:activator="{ on }">
-            <span v-on="on" v-if="item.restartCount > 0">{{item.lastState.terminated.reason}}</span>
+        <v-tooltip location="bottom" max-width="600">
+          <template v-slot:activator="{ props }">
+            <span v-bind="props" v-if="item.restartCount > 0">{{ item.lastState.terminated.reason }}</span>
           </template>
-          <span>{{ item.lastState}}</span>
+          <span>{{ item.lastState }}</span>
         </v-tooltip>
       </template>
     </v-data-table>
@@ -130,173 +152,177 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { mapGetters } from "vuex";
+import { useKbzK8sStore } from '@/stores/kbzk8s'
+
 export default {
-  mounted: function() {
-    this.updateList();
-  },
-  computed: {
-    ...mapGetters({
-      containers: "containerStatuses"
-    }),
-    ...mapState({
-      pods: state => state.kbzk8s.podinfo
-    }),
-    headers: function() {
-      if (this.type == "containers") {
-        return this.containerheaders;
-      }
-      return this.podheaders;
-    },
-    tdata: function() {
-      if (this.type == "containers") {
-        return this.containers;
-      }
-      return this.pods;
-    }
-  },
-
-  methods: {
-    updateList: function() {
-      this.$store.dispatch("fetchPodInfo");
-    },
-    statusColour: function(cs) {
-      if (!cs.ready) {
-        return "red";
-      }
-    },
-    probeChipColor: function(ready) {
-      if (ready) {
-        return "green";
-      }
-      return "orange";
-    },
-    probeType: function(cfg) {
-      for (var k in Object.keys(cfg)) {
-        switch (Object.keys(cfg)[k]) {
-          case "httpGet":
-            return "http";
-          case "exec":
-            return "exec";
-          case "tcpSocket":
-            return "socket";
-        }
-      }
-      return "probed";
-    },
-    recentlyRestarted: function(status) {
-      if (status.lastState == null) {
-        return false;
-      }
-      if (status.lastState.terminated == null) {
-        return false;
-      }
-      var rt = new Date(status.lastState.terminated.finishedAt);
-      var MIN_15 = 15 * 60 * 1000; /* ms */
-      if (new Date() - rt < MIN_15) {
-        return true;
-      }
-
-      return false;
-    },
-    terminationReason: function (status)  {
-      
-      if (status.lastState == null) {
-        return "";
-      }
-      if (status.lastState.terminated == null) {
-        return "";
-      }
-      
-      return status.lastState.terminated.reason
-      
-
-    }
-    
-  },
-
-  data() {
+  name: 'PodsView',
+  setup() {
     return {
-      search: "",
-      type: "pods",
-      podheaders: [
-        { text: "Namespace", value: "namespace" },
-        {
-          text: "Pod name",
-          align: "start",
-          sortable: true,
-          value: "name"
-        },
-        { text: "Pod phase", value: "status.phase" },
-        { text: "Conditions", value: "condition" },
-        { text: "Container Status", value: "containerReason" },
-        { text: "Restarts", value: "containerRestarts" },
-        { text: "Quality  Of Service", value: "status.qosClass" },
-        { text: "Reason", value: "reason" },
-        { text: "Node", value: "status.hostIP" }
-      ],
-      containerheaders: [
-
-        {
-          text: "Container name",
-          align: "start",
-          sortable: true,
-          value: "name"
-        },
-        { text: "State", value: "kbzState" },
-
-        { text: "Ready", value: "ready", sortable: true },
-        { text: "Liveness", value: "livenessprobe", sortable: false },
-        //{ text: "Reason", value: "reason" },
-        { text: "Restarts", value: "restartCount" },
-        /*{
-          text: "Termination reason",
-          value: "terminationReason",
-          sortable: false
-        },*/
-      { text: "Image Name", value: "image" },
-      { text: "Pod", value: "kbzPod" },
-      ]
-    };
-  }
-};
-</script>
-<!--  script >
-// @ is an alias to /src
-//import axios from "axios";
-/*import { mapState } from "vuex";
-export default {
-  name: "Api",
-  components: {
-    ApiEndpoint,
-    Instructions,
-    ApiNew
-  },
-
-  computed: mapState({
-    apis: state => state.apiendpoint.apis
-  }),
-  methods: {
-     createEndpoint: function(api) {
-      this.$store.commit("NEW_API", api);
-      this.updateList()
-    },
-    updateEndpoint: function(api) {
-      this.$store.commit("UPDATE_API", api);
-    },
-    updateList: function() {
-      this.$store.dispatch("fetchAPIEndpoints");
+      k8sStore: useKbzK8sStore()
     }
   },
-  mounted: function() {
+  mounted() {
     this.updateList()
   },
-  data: function() {
+  computed: {
+    containers() {
+      return this.k8sStore.containerStatuses
+    },
+    pods() {
+      return this.k8sStore.podInfo
+    },
+    headers() {
+      return this.type === 'containers' ? this.containerheaders : this.podheaders
+    },
+    tdata() {
+      return this.type === 'containers' ? this.containers : this.pods
+    }
+  },
+  methods: {
+    updateList() {
+      this.k8sStore.fetchPodInfo()
+    },
+    statusColour(cs) {
+      return cs.ready ? '#76ff03' : 'red'
+    },
+    probeChipColor(ready) {
+      return ready ? 'green-accent-3' : 'orange'
+    },
+    readinessStatus(item) {
+      const configured = item.containerInfo?.redynessProbeConfig
+      if (!configured) return 'No readiness probe configured; container is not ready'
+      return item.ready ? 'Container is ready' : 'Container is not ready'
+    },
+    formatProbeConfig(config) {
+      return JSON.stringify(config, null, 2)
+    },
+    probeType(cfg) {
+      for (const key of Object.keys(cfg)) {
+        switch (key) {
+          case 'httpGet': return 'http'
+          case 'exec': return 'exec'
+          case 'tcpSocket': return 'socket'
+        }
+      }
+      return 'probed'
+    },
+    recentlyRestarted(status) {
+      if (!status.lastState?.terminated) return false
+      const rt = new Date(status.lastState.terminated.finishedAt)
+      const MIN_15 = 15 * 60 * 1000
+      return new Date() - rt < MIN_15
+    },
+    terminationReason(status) {
+      return status.lastState?.terminated?.reason ?? ''
+    }
+  },
+  data() {
     return {
-      endpoints: {},
-      dialog: false
-    };
+      search: '',
+      type: 'pods',
+      podheaders: [
+        { title: 'Namespace', value: 'namespace' },
+        { title: 'Pod name', align: 'start', sortable: true, value: 'name' },
+        { title: 'Pod phase', value: 'status.phase' },
+        { title: 'Conditions', value: 'condition' },
+        { title: 'Container Status', value: 'containerReason' },
+        { title: 'Restarts', value: 'containerRestarts' },
+        { title: 'Quality Of Service', value: 'status.qosClass' },
+        { title: 'Reason', value: 'reason' },
+        { title: 'Node', value: 'status.hostIP' }
+      ],
+      containerheaders: [
+        { title: 'Container name', align: 'start', sortable: true, value: 'name' },
+        { title: 'State', value: 'kbzState' },
+        { title: 'Ready', value: 'ready', sortable: true },
+        { title: 'Liveness', value: 'livenessprobe', sortable: false },
+        { title: 'Restarts', value: 'restartCount' },
+        { title: 'Image Name', value: 'image' },
+        { title: 'Pod', value: 'kbzPod' }
+      ]
+    }
   }
-};
-</script -->
+}
+</script>
+
+<style scoped>
+.table-header {
+  min-height: 72px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-heading__title {
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.section-heading__subtitle {
+  margin-top: 0.1rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.table-search {
+  max-width: 280px;
+}
+
+:deep(.workloads-table .v-table__wrapper > table > thead > tr > th) {
+  height: 44px;
+  background-color: #2e353b !important;
+  border-top: 1px solid rgba(144, 202, 249, 0.22);
+  border-bottom: 1px solid #90caf9 !important;
+  color: #fff !important;
+  font-size: 0.75rem;
+  font-weight: 700 !important;
+  letter-spacing: 0.025em;
+}
+
+:deep(.workloads-table .v-table__wrapper > table > thead > tr > th:not(:last-child)) {
+  border-right: 1px solid rgba(144, 202, 249, 0.1);
+}
+
+.view-selector__button,
+.refresh-button {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.view-selector__button {
+  font-weight: 600;
+}
+
+.probe-tooltip__status {
+  font-weight: 600;
+}
+
+.probe-tooltip__config {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  white-space: pre-wrap;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 700px) {
+  .section-heading__subtitle {
+    display: none;
+  }
+
+  .view-selector__button {
+    padding-inline: 0.5rem;
+  }
+
+  .table-search {
+    display: none;
+  }
+}
+</style>
