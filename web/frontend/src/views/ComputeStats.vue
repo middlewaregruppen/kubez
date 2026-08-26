@@ -21,17 +21,16 @@
 </template>
 
 <script>
-// @ is an alias to /src
-import CGroup from "@/components/CGroup.vue";
-import LoadTools from "@/components/LoadTools.vue";
-import K8SLoad from "@/components/K8SLoad.vue";
+import CGroup from '@/components/CGroup.vue'
+import LoadTools from '@/components/LoadTools.vue'
+import K8SLoad from '@/components/K8SLoad.vue'
 
 export default {
-  name: "ComputeStats",
+  name: 'ComputeStats',
   components: {
     CGroup,
     LoadTools,
     K8SLoad
   }
-};
+}
 </script>

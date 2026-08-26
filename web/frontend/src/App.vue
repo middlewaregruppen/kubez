@@ -1,83 +1,51 @@
 <template>
   <v-app id="inspire">
-    <v-snackbar v-model="snack.show" :color="snack.color" :timeout="0">
+    <v-snackbar v-model="snack.show" :color="snack.color" :timeout="-1">
       {{ snack.message }}
-      <v-btn text icon  @click="hideSnack">
-         <v-icon>mdi-close</v-icon>
-      </v-btn>
+      <template v-slot:actions>
+        <v-btn variant="text" icon="mdi-close" @click="hideSnack"></v-btn>
+      </template>
     </v-snackbar>
-    <v-navigation-drawer v-model="drawer" app clipped>
-      <v-list dense>
-        <!--v-list-item link @click="$router.push('/')">
-          <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>asd</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item-->
 
-        <v-list-item link @click="$router.push('api')">
-          <v-list-item-action>
-            <v-icon>mdi-drone</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>API Control Center</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item link @click="$router.push('compute-stats')">
-          <v-list-item-action>
-            <v-icon>mdi-chart-line</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Stats &amp; Load Tools</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item link @click="$router.push('pods')">
-          <v-list-item-action>
-            <v-icon>mdi-popcorn</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Pods and Containers</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item link @click="$router.push('network')">
-          <v-list-item-action>
-            <v-icon>mdi-web</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Network</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <!--v-list-item link @click="$router.push('authentication')">
-          <v-list-item-action>
-            <v-icon>mdi-key</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>User Authentication</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item-->
+    <v-navigation-drawer v-model="drawer" app>
+      <v-list density="compact">
+        <v-list-item
+          prepend-icon="mdi-drone"
+          title="API Control Center"
+          @click="$router.push('/api')"
+        />
+        <v-list-item
+          prepend-icon="mdi-chart-line"
+          title="Stats &amp; Load Tools"
+          @click="$router.push('/compute-stats')"
+        />
+        <v-list-item
+          prepend-icon="mdi-popcorn"
+          title="Pods and Containers"
+          @click="$router.push('/pods')"
+        />
+        <v-list-item
+          prepend-icon="mdi-web"
+          title="Network"
+          @click="$router.push('/network')"
+        />
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app clipped-left>
+    <v-app-bar app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>Dr. Kubez</v-toolbar-title>
       <v-spacer></v-spacer>
-      {{hostname}} in {{namespace}}
-       <v-spacer></v-spacer>
-      <v-chip :color="connectionStatus.colour"  x-small>{{connectionStatus.code}}</v-chip>
+      {{ hostname }} in {{ namespace }}
+      <v-spacer></v-spacer>
+      <v-chip :color="connectionStatus.colour" size="x-small">{{ connectionStatus.code }}</v-chip>
     </v-app-bar>
 
-    <v-content>
+    <v-main>
       <router-view></router-view>
-    </v-content>
+    </v-main>
 
-    <v-footer app pl-3>
+    <v-footer app class="pl-3">
       <span>Svenska Middlewaregruppen AB</span>
       <v-spacer></v-spacer>
       <span>
@@ -85,7 +53,7 @@
       </span>
       <v-spacer></v-spacer>
       <span>
-        <v-icon>mdi-github-circle</v-icon>
+        <v-icon>mdi-github</v-icon>
         <a href="https://github.com/middlewaregruppen/kubez">kubez</a>
       </span>
     </v-footer>
@@ -93,53 +61,49 @@
 </template>
 
 <script>
+import { useInfoStore } from './stores/info'
+
 export default {
-  props: {
-    source: String
+  setup() {
+    return {
+      infoStore: useInfoStore()
+    }
   },
   methods: {
     hideSnack() {
-      this.$store.dispatch('clearSnack')
+      this.infoStore.clearSnack()
     }
   },
   computed: {
-    hostname () {
-      return this.$store.state.info.hostname
+    hostname() {
+      return this.infoStore.hostname
     },
-    namespace (){
-      return this.$store.state.info.k8sstats.namespace
+    namespace() {
+      return this.infoStore.k8sstats?.namespace
     },
     snack() {
-      return this.$store.state.info.snack
+      return this.infoStore.snack
     },
-    connectionStatus: function() {
-       var c = {
-        loading: false,
-        colour: '',
-        code: '',
-      };
-      switch (this.$store.getters.status) {
+    connectionStatus() {
+      const c = { colour: '', code: '' }
+      switch (this.infoStore.status) {
         case 200:
-          c.colour = "green darken-4"
-          c.code = "connected"
+          c.colour = 'green-darken-4'
+          c.code = 'connected'
           break
         case -1:
-          c.code = ""
-          return
-
+          c.code = ''
+          return c
         default:
-          c.colour = "red"
-          c.code = this.$store.getters.status
+          c.colour = 'red'
+          c.code = String(this.infoStore.status)
           break
       }
-      return c;
-    },
+      return c
+    }
   },
   data: () => ({
-    drawer: null,
-  }),
-  created() {
-    this.$vuetify.theme.dark = true;
-  }
-};
+    drawer: null
+  })
+}
 </script>

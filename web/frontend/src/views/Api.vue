@@ -3,18 +3,14 @@
     <v-row no-gutters>
       <v-col>
         <v-card flat>
-            <ApiNew href="/kubez/apicc/" @createEndpoint="createEndpoint" />
-            <!-- Reload button -->
-            <v-btn small icon dark v-on:click="updateList()">
-              <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-
-            <Instructions href="api-control-center.md" />
+          <ApiNew @createEndpoint="createEndpoint" />
+          <v-btn size="small" icon="mdi-refresh" @click="updateList()"></v-btn>
+          <Instructions href="api-control-center.md" />
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row v-for="e in apis" v-bind:key="e.name">
+    <v-row v-for="e in apis" :key="e.name">
       <v-col>
         <v-card>
           <ApiEndpoint
@@ -37,50 +33,47 @@
             @update="updateEndpoint"
           />
         </v-card>
-        <v-card></v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-// @ is an alias to /src
-import ApiEndpoint from "@/components/ApiEndpoint.vue";
-import ApiNew from "@/components/ApiNew.vue";
-import Instructions from "@/components/Instructions.vue";
-//import axios from "axios";
-import { mapState } from "vuex";
+import ApiEndpoint from '@/components/ApiEndpoint.vue'
+import ApiNew from '@/components/ApiNew.vue'
+import Instructions from '@/components/Instructions.vue'
+import { useApiEndpointStore } from '@/stores/apiendpoint'
+
 export default {
-  name: "Api",
+  name: 'Api',
   components: {
     ApiEndpoint,
     Instructions,
     ApiNew
   },
-
-  computed: mapState({
-    apis: state => state.apiendpoint.apis
-  }),
-  methods: {
-     createEndpoint: function(api) {
-      this.$store.dispatch("createNewAPI", api);
-      this.updateList()
-    },
-    updateEndpoint: function(api) {
-      this.$store.commit("UPDATE_API", api);
-    },
-    updateList: function() {
-      this.$store.dispatch("fetchAPIEndpoints");
+  setup() {
+    return {
+      apiStore: useApiEndpointStore()
     }
   },
-  mounted: function() {
-    this.updateList()
+  computed: {
+    apis() {
+      return this.apiStore.apis
+    }
   },
-  data: function() {
-    return {
-      endpoints: {},
-      dialog: false
-    };
+  methods: {
+    createEndpoint(api) {
+      this.apiStore.createNewAPI(api).then(() => this.updateList())
+    },
+    updateEndpoint(api) {
+      this.apiStore.updateAPI(api)
+    },
+    updateList() {
+      this.apiStore.fetchAPIEndpoints()
+    }
+  },
+  mounted() {
+    this.updateList()
   }
-};
+}
 </script>

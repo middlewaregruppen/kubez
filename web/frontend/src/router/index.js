@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-
-Vue.use(VueRouter)
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
   {
@@ -11,41 +8,27 @@ const routes = [
   {
     path: '/compute-stats',
     name: 'ComputeStats',
-
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "ComputeStats" */ '../views/ComputeStats.vue')
+    component: () => import('../views/ComputeStats.vue')
   },
   {
     path: '/network',
     name: 'Network',
-
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "ComputeStats" */ '../views/Network.vue')
+    component: () => import('../views/Network.vue')
   },
   {
     path: '/api',
     name: 'API',
-
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "ComputeStats" */ '../views/Api.vue')
-  },  {
+    component: () => import('../views/Api.vue')
+  },
+  {
     path: '/pods',
     name: 'Pods',
-
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "ComputeStats" */ '../views/Pods.vue')
+    component: () => import('../views/Pods.vue')
   }
 ]
 
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes
 })
 
