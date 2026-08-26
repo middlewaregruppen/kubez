@@ -4,6 +4,23 @@
 
 Dr. Kubez is a tool to test, diagnose and load k8s clusters.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%">
+      <a href="media/pods-view.png"><img src="media/pods-view.png" alt="Pods view"></a>
+    </td>
+    <td width="50%">
+      <a href="media/container-overview.png"><img src="media/container-overview.png" alt="Container overview"></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Pods view</strong></td>
+    <td align="center"><strong>Container overview</strong></td>
+  </tr>
+</table>
+
 To run it in your cluster
 
 ```
